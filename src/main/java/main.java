@@ -3,11 +3,17 @@
  */
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class main extends Application {
+import java.io.IOException;
+
+public class Main extends Application {
+
+    BorderPane borderPane = new BorderPane();
 
     public static void main(String[] args) {
         launch(args);
@@ -18,10 +24,22 @@ public class main extends Application {
         Stage stage = new Stage();
         stage.setTitle("Stage Title");
 
-        BorderPane borderPane = new BorderPane();
-        Scene scene = new Scene(borderPane, 1024, 800);
+        initMenu();
 
+
+
+        Scene scene = new Scene(borderPane, 1024, 800);
         stage.setScene(scene);
         stage.show();
+    }
+
+    public void initMenu(){
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/menu.fxml"));
+        try {
+            borderPane.setTop((Node) fxmlLoader.load());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
