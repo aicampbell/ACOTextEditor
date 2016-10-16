@@ -12,15 +12,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import util.KeyCombinations;
 
 import java.io.IOException;
 
-public class Main extends Application {
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Text;
+
+public class MainApp extends Application {
     BorderPane borderPane;
     TextArea textArea;
+    private VBox vBox;
+    private HBox hBox;
     private Engine engine;
 
     public static void main(String[] args) {
@@ -35,6 +41,7 @@ public class Main extends Application {
         setupTextArea();
         setupPane();
         setupMenu();
+        setupToolBar();
 
         // KEY_TYPED event is triggered when a valid Unicode-character got generated.
         // See https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html
@@ -50,6 +57,8 @@ public class Main extends Application {
 
     private void setupPane() {
         borderPane = new BorderPane();
+        vBox = new VBox();
+        hBox = new HBox();
         borderPane.setCenter(textArea);
         borderPane.setBottom(new Text("Cursor position here"));
         // ... styles and shit
@@ -60,10 +69,29 @@ public class Main extends Application {
         // ... styles and shit
     }
 
+    private void setupBottomToolBar(){
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/LowerMenu.fxml"));
+            try {
+                hBox.getChildren().add((Node) fxmlLoader.load());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            borderPane.setBottom(hBox);
+
+    }
+    private void setupToolBar(){
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/toolbar.fxml"));
+        try {
+            vBox.getChildren().add((Node) fxmlLoader.load());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        borderPane.setTop(vBox);
+    }
     private void setupMenu() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/menu.fxml"));
         try {
-            borderPane.setTop((Node) fxmlLoader.load());
+            vBox.getChildren().add((Node) fxmlLoader.load());
         } catch (IOException e) {
             e.printStackTrace();
         }

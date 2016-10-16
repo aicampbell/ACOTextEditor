@@ -4,7 +4,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 
-<MenuBar xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.65">
+<MenuBar xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.MenuController">
   <menus>
     <Menu mnemonicParsing="false" text="File">
       <items>
@@ -17,7 +17,13 @@
     </Menu>
     <Menu mnemonicParsing="false" text="Edit">
       <items>
-        <MenuItem mnemonicParsing="false" text="Delete" />
+        <MenuItem mnemonicParsing="false" text="Undo" onAction="#undo" />
+        <MenuItem mnemonicParsing="false" text="Redo" onAction="#redo"/>
+          <MenuItem mnemonicParsing="false" text="Cut" onAction="#cut"/>
+          <MenuItem mnemonicParsing="false" onAction="#copy" text="Copy" />
+          <MenuItem mnemonicParsing="false" text="Paste" onAction="#paste"/>
+          <MenuItem mnemonicParsing="false" text="Delete" onAction="#delete"/>
+          <MenuItem mnemonicParsing="false" text="Insert" onAction="#insert"/>
       </items>
     </Menu>
     <Menu mnemonicParsing="false" text="Help">
