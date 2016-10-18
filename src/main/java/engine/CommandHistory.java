@@ -4,10 +4,10 @@ import commands.Command;
 
 import java.util.Stack;
 
-/**
- * Created by mo on 14.10.16.
- */
-public class CommandHistory {
+    /**
+     * Created by mo on 14.10.16.
+     */
+    public class CommandHistory {
     private Engine engine;
 
     private Stack<Command> undoStack;

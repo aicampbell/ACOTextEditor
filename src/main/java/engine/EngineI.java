@@ -6,7 +6,7 @@ package engine;
 public interface EngineI {
     void updateCursorPosition(int position);
 
-    void insertChar(char character);
+    void insertChar(String character);
 
     void deleteInDirection(int delDirection);
 
