@@ -10,6 +10,6 @@ public class CopyCommand implements Command {
     }
 
     public void execute(Engine engine) {
-        engine.copyCurrentSelection();
+        engine.copySelection();
     }
 }

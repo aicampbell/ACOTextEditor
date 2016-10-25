@@ -14,13 +14,17 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import listener.CaretListener;
+import listener.SelectionListener;
 import util.KeyCombinations;
 
 import java.io.IOException;
 
-public class Main extends Application {
-    BorderPane borderPane;
-    TextArea textArea;
+public class TextEditor extends Application {
+    private Stage stage;
+    private Scene scene;
+    private BorderPane borderPane;
+    private TextArea textArea;
     private Engine engine;
 
     public static void main(String[] args) {
@@ -29,38 +33,78 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Stage stage = new Stage();
-        stage.setTitle("Text Editor");
+        engine = new Engine();
 
-        setupTextArea();
-        setupPane();
-        setupMenu();
+        // Setup UI components: TextArea, BorderPane, Stage, Scene, etc.
+        setupUI();
 
+        // Register all required handlers and listeners for event-based user input processing.
+        registerHandlerAndListeners(textArea, engine);
+
+        stage.show();
+    }
+
+    private void setupUI() {
+        textArea = getTextArea();
+        borderPane = getPane(textArea);
+        setupMenu(borderPane);
+        scene = getScene(borderPane);
+        stage = getStage(scene);
+    }
+
+    private void registerHandlerAndListeners(TextArea textArea, Engine engine) {
         // KEY_TYPED event is triggered when a valid Unicode-character got generated.
         // See https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html
         textArea.addEventHandler(KeyEvent.KEY_TYPED, getTypedKeyHandler());
         // KEY_PRESSED event is triggered when any key is pressed. Compared to KEY_TYPED,
         // this is a low-level mechanism
         textArea.addEventHandler(KeyEvent.KEY_PRESSED, getPressedKeyHandler());
+        // Takes care of cursor position updates
+        textArea.caretPositionProperty().addListener(new CaretListener(engine));
+        // Takes care of selection updates
+        textArea.selectionProperty().addListener(new SelectionListener(engine));
 
-        Scene scene = new Scene(borderPane, 1024, 800);
-        stage.setScene(scene);
-        stage.show();
+        // TODO: What about this context menu that opens when right-clicking in textArea? Disable that? Handle later?
+        //textArea.contextMenuProperty()....
     }
 
-    private void setupPane() {
-        borderPane = new BorderPane();
+    private BorderPane getPane(TextArea textArea) {
+        BorderPane borderPane = new BorderPane();
         borderPane.setCenter(textArea);
         borderPane.setBottom(new Text("Cursor position here"));
-        // ... styles and shit
+
+        // TODO: styles and shit
+
+        return borderPane;
     }
 
-    private void setupTextArea() {
-        textArea = new TextArea();
-        // ... styles and shit
+    private TextArea getTextArea() {
+        TextArea textArea = new TextArea();
+
+        // TODO: styles and shit
+
+        return textArea;
     }
 
-    private void setupMenu() {
+    private Scene getScene(BorderPane borderPane) {
+        Scene scene = new Scene(borderPane, 360, 360);
+
+        // TODO: styles and shit
+
+        return scene;
+    }
+
+    private Stage getStage(Scene scene) {
+        Stage stage = new Stage();
+        stage.setTitle("Text Editor");
+        stage.setScene(scene);
+
+        // TODO: styles and shit
+
+        return stage;
+    }
+
+    private void setupMenu(BorderPane borderPane) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/menu.fxml"));
         try {
             borderPane.setTop((Node) fxmlLoader.load());
@@ -91,8 +135,10 @@ public class Main extends Application {
                  * To simplify development, we are disrespecting these cases though and
                  * assume that getCharacter() always only returns one char at a time by using charAt(0).
                  */
-                Command command = new InsertCommand(keyEvent.getCharacter().charAt(0));
+                Command command = new InsertCommand(keyEvent.getCharacter());
                 command.execute(engine);
+                // TODO: consume event later, also in getPressedKeyHandler.
+                //keyEvent.consume();
             }
         };
     }
@@ -110,31 +156,34 @@ public class Main extends Application {
                 } else
 
                     // Moving cursor
-                    if (keyEvent.getCode().isArrowKey()) {
+                    // !- Is done separately in listener.CaretListener (for both using keyboard and mouse to move cursor -!
+                    /*if (keyEvent.getCode().isArrowKey()) {
                         command = new UpdateCursorCommand(textArea.getCaretPosition());
+                    } else*/
+
+                    // Copying, cutting, pasting
+                    if (KeyCombinations.COPY.match(keyEvent)) {
+                        command = new CopyCommand();
+                    } else if (KeyCombinations.CUT.match(keyEvent)) {
+                        command = new CutCommand();
+                    } else if (KeyCombinations.PASTE.match(keyEvent)) {
+                        command = new PasteCommand();
                     } else
 
-                        // Copying, cutting, pasting
-                        if (KeyCombinations.COPY.match(keyEvent)) {
-                            command = new CopyCommand();
-                        } else if (KeyCombinations.CUT.match(keyEvent)) {
-                            command = new CutCommand();
-                        } else if (KeyCombinations.PASTE.match(keyEvent)) {
-                            command = new PasteCommand();
-                        } else
-
-                            // Undo, redo
-                            if (KeyCombinations.UNDO.match(keyEvent)) {
-                                command = new UndoCommand();
-                            } else if (KeyCombinations.REDO.match(keyEvent)) {
-                                command = new RedoCommand();
-                            } else {
-                                keyEvent.consume();
-                                return;
-                            }
+                        // Undo, redo
+                        if (KeyCombinations.UNDO.match(keyEvent)) {
+                            command = new UndoCommand();
+                        } else if (KeyCombinations.REDO.match(keyEvent)) {
+                            command = new RedoCommand();
+                        } else {
+                            //keyEvent.consume();
+                            return;
+                        }
 
                 command.execute(engine);
-                keyEvent.consume();
+
+                // TODO: consume event later. because we need to update the UI from the Engine (observer design pattern)
+                //keyEvent.consume();
             }
         };
     }
@@ -145,6 +194,7 @@ public class Main extends Application {
      * @param completeString
      */
     public void updateUI(String completeString) {
+        // TODO: Implement proper Observer pattern...
         textArea.setText(completeString);
     }
 }

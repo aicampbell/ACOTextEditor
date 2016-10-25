@@ -1,13 +1,10 @@
 package engine;
 
-import com.sun.org.apache.xml.internal.serializer.utils.StringToIntTable;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by mo on 14.10.16.
+ * This class represents a state of the text input area or a part of it.
  */
 public class Buffer {
     private List<String> content;
@@ -16,121 +13,61 @@ public class Buffer {
         content = new ArrayList<String>();
     }
 
-    /**
-     * inistializing the Buffer by a buf
-     * @param buf default elements of buffer
-     */
-    public Buffer(Iterator<String> buf)
-    {
-        content = new ArrayList<String>();
-        if(buf!=null)
-        {
-            while(buf.hasNext())
-            {
-                content.add(buf.next());
-            }
-        }
+    private Buffer(List<String> content) {
+        this.content = content;
     }
 
-    /**
-     * insert items in specified index
-     * @param character, is the character to be put in buffer
-     * @param position, the position of inserting the character
-     *                  position should be between 0 to buffer length
-     */
-    public void insert(String character, int position)
-    {
-        if(position<0 || position>content.size()) {
+    public void insertAtPosition(String character, int position) {
+        if (isValidPosition(position)) {
+            content.add(position, character);
+        } else if (position == content.size()) {
+            content.add(character);
+        } else {
             throw new IndexOutOfBoundsException();
         }
-        else {
-            content.add(position, character);
+    }
+
+    public void insertAtPosition(Buffer buffer, int position) {
+        if (isValidPosition(position)) {
+            content.addAll(position, buffer.getContent());
         }
     }
 
-    public void insert(Buffer buf, int position)
-    {
-        if(buf!=null)
-        {
-            Iterator<String> bi = buf.getIterator();
-            while (bi.hasNext())
-            {
-                insert(bi.next(), position);
-                position++;
-            }
+    public void deleteAtPosition(int position) {
+        if (isValidPosition(position) && content.size() > 0) {
+            content.remove(position);
         }
     }
 
-    /**
-     * deletes the last character of buffer
-     */
-    public void delete()
-    {
-        if(content.size()>0)
-        {
-            content.remove(content.size()-1);
-        }
-    }
-
-    /**
-     * removes the items in content form index start to end parameters
-     * @param start: start index for deleting
-     * @param end: end index for deleting
-     */
-    public void delete(int start, int end)
-    {
-        if(start<0 || start>content.size())
-        {
-            throw new IndexOutOfBoundsException("start index is out of bound");
-        }
-        else if (end<0 || end>content.size())
-        {
-            throw new IndexOutOfBoundsException("end index is out of bound");
-        }
-        else if(start>end)
-        {
-            throw new IndexOutOfBoundsException("start index is bigger than end index");
-        }
-        else
-        {
+    public void deleteInterval(int start, int end) {
+        if (isValidSelection(start, end)) {
             content.subList(start, end).clear();
+        } else {
+            throw new IndexOutOfBoundsException("Couldn't delete specified interval. Start and/or end index are invalid.");
         }
     }
 
-    public int getSize()
-    {
+    public Buffer getCopy(int start, int end) {
+        if (isValidSelection(start, end)) {
+            return new Buffer(content.subList(start, end));
+        } else {
+            throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");
+        }
+    }
+
+    public int getSize() {
         return content.size();
     }
 
-    /**
-     * copy a sub list of the buffer
-     * @param start start index
-     * @param end end index
-     * @return reuturns an iterator of selected items
-     */
-    public Iterator<String> copy(int start, int end)
-    {
-        if(start<0 || start>content.size())
-        {
-            throw new IndexOutOfBoundsException("start index is out of bound");
-        }
-        else if (end<0 || end>content.size())
-        {
-            throw new IndexOutOfBoundsException("end index is out of bound");
-        }
-        else if(start>end)
-        {
-            throw new IndexOutOfBoundsException("start index is bigger than end index");
-        }
-        else
-        {
-            return content.subList(start, end).listIterator();
-        }
+    private List<String> getContent() {
+        return content;
     }
 
-    public Iterator<String> getIterator()
-    {
-        return content.iterator();
+    private boolean isValidPosition(int position) {
+        return position >= 0 && position < content.size();
     }
 
+    private boolean isValidSelection(int start, int end) {
+        return isValidPosition(start) && isValidPosition(end) && start < end;
+    }
 }

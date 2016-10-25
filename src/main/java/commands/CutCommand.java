@@ -10,6 +10,6 @@ public class CutCommand implements Command {
     }
 
     public void execute(Engine engine) {
-        engine.cutCurrentSelection();
+        engine.cutSelection();
     }
 }

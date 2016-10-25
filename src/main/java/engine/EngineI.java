@@ -10,13 +10,19 @@ public interface EngineI {
 
     void deleteInDirection(int delDirection);
 
-    void cutCurrentSelection();
+    void updateSelection(int start, int end);
 
-    void copyCurrentSelection();
+    void cutSelection();
 
-    void pasteCurrentSelection();
+    void copySelection();
+
+    void pasteClipboard();
 
     void undoCommand();
 
     void redoCommand();
+
+    void toggleRecording();
+
+    void replay();
 }

@@ -10,6 +10,6 @@ public class PasteCommand implements Command {
     }
 
     public void execute(Engine engine) {
-        engine.pasteCurrentSelection();
+        engine.pasteClipboard();
     }
 }
