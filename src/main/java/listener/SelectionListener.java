@@ -19,8 +19,7 @@ public class SelectionListener implements ChangeListener<IndexRange> {
 
     public void changed(ObservableValue<? extends IndexRange> observable,
                         IndexRange oldRange, IndexRange newRange) {
-        // Only execute the UpdateSelectionCommand when it is a real selection for which 'start < end' holds. If not, ignore this event and let listener.CaretListener handle a cursor update.
-        if (newRange.getLength() > 0) {
+        if(newRange.getStart() < newRange.getEnd()) {
             Command command = new UpdateSelectionCommand(newRange.getStart(), newRange.getEnd());
             command.execute(engine);
         }

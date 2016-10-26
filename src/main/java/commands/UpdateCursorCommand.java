@@ -3,16 +3,16 @@ package commands;
 import engine.Engine;
 
 /**
- * Created by mo on 14.10.16.
+ * Created by mo on 26.10.16.
  */
 public class UpdateCursorCommand implements Command {
-    int newPosition;
+    int position;
 
-    public UpdateCursorCommand(int newPosition) {
-        this.newPosition = newPosition;
+    public UpdateCursorCommand(int position) {
+        this.position = position;
     }
 
     public void execute(Engine engine) {
-        engine.updateCursorPosition(newPosition);
+        engine.updateCursor(position);
     }
 }

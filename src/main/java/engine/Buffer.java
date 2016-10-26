@@ -18,9 +18,9 @@ public class Buffer {
     }
 
     public void insertAtPosition(String character, int position) {
-        if (isValidPosition(position)) {
+        if (isValidPositionWithFirst(position)) {
             content.add(position, character);
-        } else if (position == content.size()) {
+        } else if (isLastPosition(position)) {
             content.add(character);
         } else {
             throw new IndexOutOfBoundsException();
@@ -28,13 +28,17 @@ public class Buffer {
     }
 
     public void insertAtPosition(Buffer buffer, int position) {
-        if (isValidPosition(position)) {
+        if (isValidPositionWithFirst(position)) {
             content.addAll(position, buffer.getContent());
+        } else if(isLastPosition(position)) {
+            content.addAll(buffer.getContent());
+        } else {
+            throw new IndexOutOfBoundsException();
         }
     }
 
     public void deleteAtPosition(int position) {
-        if (isValidPosition(position) && content.size() > 0) {
+        if (isValidPositionWithFirst(position) && !content.isEmpty()) {
             content.remove(position);
         }
     }
@@ -51,8 +55,13 @@ public class Buffer {
         if (isValidSelection(start, end)) {
             return new Buffer(content.subList(start, end));
         } else {
+            // TODO: OR return new Buffer();
             throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");
         }
+    }
+
+    public boolean isEmpty() {
+        return content.isEmpty();
     }
 
     public int getSize() {
@@ -63,11 +72,22 @@ public class Buffer {
         return content;
     }
 
-    private boolean isValidPosition(int position) {
+
+    public boolean isValidPositionWithFirst(int position) {
         return position >= 0 && position < content.size();
     }
 
-    private boolean isValidSelection(int start, int end) {
-        return isValidPosition(start) && isValidPosition(end) && start < end;
+    public boolean isValidPositionWithLast(int position) {
+        return position > 0 && position <= content.size();
+    }
+
+    public boolean isLastPosition(int position) {
+        return position == content.size();
+    }
+
+    public boolean isValidSelection(int start, int end) {
+        return isValidPositionWithFirst(start) &&
+                isValidPositionWithLast(end) &&
+                start < end;
     }
 }

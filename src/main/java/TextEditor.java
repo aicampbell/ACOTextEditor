@@ -14,7 +14,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import listener.CaretListener;
 import listener.SelectionListener;
 import util.KeyCombinations;
 
@@ -59,9 +58,8 @@ public class TextEditor extends Application {
         // KEY_PRESSED event is triggered when any key is pressed. Compared to KEY_TYPED,
         // this is a low-level mechanism
         textArea.addEventHandler(KeyEvent.KEY_PRESSED, getPressedKeyHandler());
-        // Takes care of cursor position updates
-        textArea.caretPositionProperty().addListener(new CaretListener(engine));
-        // Takes care of selection updates
+        // TODO: Add MouseHandler that triggers UpdateCursorCommands. Within mouseHandler we need to make sure that text-selections done with mouse are not respected (is done in SelectionListener).
+        // Takes care of selection and cursor updates
         textArea.selectionProperty().addListener(new SelectionListener(engine));
 
         // TODO: What about this context menu that opens when right-clicking in textArea? Disable that? Handle later?
@@ -118,7 +116,7 @@ public class TextEditor extends Application {
             public void handle(KeyEvent keyEvent) {
                 /*
                  * Right now, we only support regular characters and their SHIFT-variant.
-                 * Other key combinatations with other modifier keys than SHIFT, are ignored.
+                 * Other key combinations with other modifier keys than SHIFT, are ignored.
                  */
                 if (keyEvent.isAltDown() || keyEvent.isControlDown() ||
                         keyEvent.isMetaDown() || keyEvent.isShortcutDown()) {
@@ -156,10 +154,10 @@ public class TextEditor extends Application {
                 } else
 
                     // Moving cursor
-                    // !- Is done separately in listener.CaretListener (for both using keyboard and mouse to move cursor -!
-                    /*if (keyEvent.getCode().isArrowKey()) {
+                    // TODO: Make sure SHIFT is not pressed, so that this is not part of selecting text with SHIFT+ARROW KEYS. If SHIFT is pressed, the update will be handled by SelectionListener anyway.
+                    if (keyEvent.getCode().isArrowKey()) {
                         command = new UpdateCursorCommand(textArea.getCaretPosition());
-                    } else*/
+                    } else
 
                     // Copying, cutting, pasting
                     if (KeyCombinations.COPY.match(keyEvent)) {
