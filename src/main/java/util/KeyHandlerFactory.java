@@ -2,8 +2,11 @@ package util;
 
 import commands.*;
 import engine.Engine;
+import javafx.beans.NamedArg;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 /**
@@ -13,8 +16,6 @@ public class KeyHandlerFactory {
     private static String KEY_BACKSPACE = "\b";
     private static String KEY_DELETE = "\u007F";
     private static String KEY_ESCAPE = "\u001B";
-    //private static String KEY_BACKSPACE = "\b";
-
 
     private Engine engine;
 
@@ -64,8 +65,8 @@ public class KeyHandlerFactory {
                  */
                 Command command = new InsertCommand(keyEvent.getCharacter());
                 command.execute(engine);
-                // TODO: consume event later, also in getPressedKeyHandler.
-                keyEvent.consume();
+
+                //keyEvent.consume();
             }
         };
     }
@@ -88,9 +89,15 @@ public class KeyHandlerFactory {
                 } else
 
                     // Moving cursor
-                    // TODO: Make sure SHIFT is not pressed, so that this is not part of selecting text with SHIFT+ARROW KEYS. If SHIFT is pressed, the update will be handled by SelectionListener anyway.
+                    // TODO: Currently, we don't track Arrow keys but only react on their impact on the UI tracked by SelectionListener
                     /*if (keyEvent.getCode().isArrowKey()) {
-                        command = new UpdateCursorCommand(textArea.getCaretPosition());
+                        if(keyEvent.isShiftDown()) {
+                            // update selection
+                            command = new UpdateCursorCommand(keyEvent.getCode());
+                        } else {
+                            // update cursor
+                            command = new UpdateCursorCommand(keyEvent.getCode());
+                        }
                     } else*/
 
                     // Copying, cutting, pasting
@@ -108,14 +115,13 @@ public class KeyHandlerFactory {
                         } else if (KeyCombinations.REDO.match(keyEvent)) {
                             command = new RedoCommand();
                         } else {
-                            keyEvent.consume();
+                            //keyEvent.consume();
                             return;
                         }
 
                 command.execute(engine);
 
-                // TODO: consume event later. because we need to update the UI from the Engine (observer design pattern)
-                keyEvent.consume();
+                //keyEvent.consume();
             }
         };
     }

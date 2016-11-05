@@ -6,4 +6,5 @@ package util;
 public interface EngineObserver {
     void updateText(String content);
     void updateCursor(int position);
+    void updateSelection(boolean active, int start, int end);
 }

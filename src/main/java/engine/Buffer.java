@@ -7,6 +7,8 @@ import java.util.List;
  * This class represents a state of the text input area or a part of it.
  */
 public class Buffer {
+    // TODO: implementation with Bindings: http://stackoverflow.com/questions/11314863/javafx-bidirectional-binding-not-working-with-the-control-becoming-not-editable
+
     private List<String> content;
 
     public Buffer() {

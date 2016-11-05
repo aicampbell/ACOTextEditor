@@ -32,7 +32,7 @@ public class Engine implements EngineI {
         // Insert typed character
         buffer.insertAtPosition(character, cursorPosition);
         cursorPosition++;
-        //System.out.println("cursorPos after insertChar's pos++: " + cursorPosition);
+
         notifyTextChange();
         notifyCursorChange();
     }
@@ -48,8 +48,10 @@ public class Engine implements EngineI {
             // "Backspace" key was used, so the previous character at currentPosition-1 should be deleted.
             // cursorPosition is decremented.
             buffer.deleteAtPosition(cursorPosition - 1);
-            //cursorPosition--;
+            cursorPosition--;
+            notifyCursorChange();
         }
+        notifyTextChange();
     }
 
     /**
@@ -60,8 +62,11 @@ public class Engine implements EngineI {
     public void updateCursor(int position) {
         cursorPosition = position;
         isTextSelected = false;
-        //System.out.println("cursorPos after updateCursor: " + cursorPosition);
+        selectionStart = 0;
+        selectionEnd = 0;
+
         notifyCursorChange();
+        notifySelectionChange();
     }
 
     /**
@@ -75,6 +80,8 @@ public class Engine implements EngineI {
         selectionEnd = end;
         isTextSelected = true;
         cursorPosition = end;
+
+        notifySelectionChange();
     }
 
     public void cutSelection() {
@@ -82,6 +89,9 @@ public class Engine implements EngineI {
             clipboard = buffer.getCopy(selectionStart, selectionEnd);
         }
         deleteSelectionIfExists(selectionStart, selectionEnd);
+
+        notifyTextChange();
+        notifySelectionChange();
     }
 
     public void copySelection() {
@@ -97,6 +107,10 @@ public class Engine implements EngineI {
             buffer.insertAtPosition(clipboard, cursorPosition);
             cursorPosition += clipboard.getSize();
         }
+
+        notifyTextChange();
+        notifyCursorChange();
+        notifySelectionChange();
     }
 
     public void undoCommand() {
@@ -146,5 +160,9 @@ public class Engine implements EngineI {
 
     private void notifyCursorChange() {
         engineObserver.updateCursor(cursorPosition);
+    }
+
+    private void notifySelectionChange() {
+        engineObserver.updateSelection(isTextSelected, selectionStart, selectionEnd);
     }
 }
