@@ -72,6 +72,14 @@ public class Buffer {
         return content;
     }
 
+    public String getStringContent() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(String s : content) {
+            stringBuilder.append(s);
+        }
+        return stringBuilder.toString();
+    }
+
 
     public boolean isValidPositionWithFirst(int position) {
         return position >= 0 && position < content.size();

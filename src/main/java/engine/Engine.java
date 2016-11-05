@@ -1,11 +1,14 @@
 package engine;
 
 import commands.DeleteCommand;
+import util.EngineObserver;
 
 /**
  * Created by Aidan on 10/10/2016.
  */
 public class Engine implements EngineI {
+    private EngineObserver engineObserver;
+
     private CommandHistory commandHistory;
     private Buffer buffer;
     private Buffer clipboard;
@@ -29,6 +32,9 @@ public class Engine implements EngineI {
         // Insert typed character
         buffer.insertAtPosition(character, cursorPosition);
         cursorPosition++;
+        //System.out.println("cursorPos after insertChar's pos++: " + cursorPosition);
+        notifyTextChange();
+        notifyCursorChange();
     }
 
     public void deleteInDirection(int delDirection) {
@@ -42,7 +48,7 @@ public class Engine implements EngineI {
             // "Backspace" key was used, so the previous character at currentPosition-1 should be deleted.
             // cursorPosition is decremented.
             buffer.deleteAtPosition(cursorPosition - 1);
-            cursorPosition--;
+            //cursorPosition--;
         }
     }
 
@@ -54,6 +60,8 @@ public class Engine implements EngineI {
     public void updateCursor(int position) {
         cursorPosition = position;
         isTextSelected = false;
+        //System.out.println("cursorPos after updateCursor: " + cursorPosition);
+        notifyCursorChange();
     }
 
     /**
@@ -120,11 +128,23 @@ public class Engine implements EngineI {
      */
     private boolean deleteSelectionIfExists(int start, int end) {
         if (isTextSelected) {
-            buffer.deleteInterval(selectionStart, selectionEnd);
+            buffer.deleteInterval(start, end);
             cursorPosition = selectionStart;
             isTextSelected = false;
             return true;
         }
         return false;
+    }
+
+    public void attachObserver(EngineObserver engineObserver) {
+        this.engineObserver = engineObserver;
+    }
+
+    private void notifyTextChange() {
+        engineObserver.updateText(buffer.getStringContent());
+    }
+
+    private void notifyCursorChange() {
+        engineObserver.updateCursor(cursorPosition);
     }
 }

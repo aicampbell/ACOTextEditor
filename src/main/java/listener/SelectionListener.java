@@ -1,6 +1,7 @@
 package listener;
 
 import commands.Command;
+import commands.UpdateCursorCommand;
 import commands.UpdateSelectionCommand;
 import engine.Engine;
 import javafx.beans.value.ChangeListener;
@@ -21,6 +22,9 @@ public class SelectionListener implements ChangeListener<IndexRange> {
                         IndexRange oldRange, IndexRange newRange) {
         if(newRange.getStart() < newRange.getEnd()) {
             Command command = new UpdateSelectionCommand(newRange.getStart(), newRange.getEnd());
+            command.execute(engine);
+        } else if (newRange.getStart() == newRange.getEnd()) {
+            Command command = new UpdateCursorCommand(newRange.getStart());
             command.execute(engine);
         }
     }
