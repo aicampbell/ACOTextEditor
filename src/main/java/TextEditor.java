@@ -1,5 +1,7 @@
 import engine.Engine;
+import listener.CursorListener;
 import util.EngineObserver;
+import listener.KeyboardListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,6 +40,9 @@ public class TextEditor implements EngineObserver {
 
         // TODO: make sure we can update text, cursor and selection in outer-right textPane
         textPaneRight.setEnabled(false);
+
+        textPaneLeft.addKeyListener(new KeyboardListener(engine));
+        textPaneLeft.addCaretListener(new CursorListener(engine));
     }
 
     private void setupSplitPane() {
@@ -76,14 +81,15 @@ public class TextEditor implements EngineObserver {
     }
 
     public void updateText(String content) {
-
+        textPaneRight.setText(content);
     }
 
     public void updateCursor(int position) {
-
+        textPaneRight.setCaretPosition(position);
     }
 
     public void updateSelection(boolean active, int start, int end) {
-
+        textPaneRight.setSelectionStart(start);
+        textPaneRight.setSelectionStart(end);
     }
 }
