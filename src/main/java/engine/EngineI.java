@@ -4,7 +4,7 @@ package engine;
  * Created by mo on 14.10.16.
  */
 public interface EngineI {
-    void insertChar(String character);
+    void insertChar(char character);
 
     void deleteInDirection(int delDirection);
 

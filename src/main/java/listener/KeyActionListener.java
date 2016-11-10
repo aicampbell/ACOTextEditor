@@ -12,24 +12,35 @@ import static commands.DeleteCommand.DEL_FORWARDS;
 /**
  * Created by mo on 09.11.16.
  */
-public class KeyboardListener implements KeyListener {
+public class KeyActionListener implements KeyListener {
     // TODO: Do we need these here?
-    /*private static String KEY_BACKSPACE = "\b";
-    private static String KEY_DELETE = "\u007F";
-    private static String KEY_ESCAPE = "\u001B";*/
+    private static char KEY_BACKSPACE = '\b';
+    private static char KEY_DELETE = '\u007F';
+    private static char KEY_ESCAPE = '\u001B';
 
     private Engine engine;
     private Command command;
 
-    public KeyboardListener(Engine engine) {
+    public KeyActionListener(Engine engine) {
         this.engine = engine;
     }
 
-    public void keyTyped(KeyEvent keyEvent) {
+    public void keyTyped(KeyEvent e) {
+        e.consume();
 
+        if (e.getKeyCode() == KEY_ESCAPE ||
+                e.getKeyCode() == KEY_DELETE ||
+                e.getKeyCode() == KEY_BACKSPACE) {
+            return;
+        }
+
+        command = new InsertCommand(e.getKeyChar());
+        command.execute(engine);
     }
 
     public void keyPressed(KeyEvent e) {
+        e.consume();
+
         if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_C) {
             command = new CopyCommand();
         }
@@ -51,13 +62,14 @@ public class KeyboardListener implements KeyListener {
         else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
             command = new RedoCommand();
         }
-        /*else if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_UP) {
-            // make sure this kind of selection events are not consumed, so that caretListener is invoked correctly. First make sure if caretListener also works when we consume the event here (?)
-        } */
         else {
+            // TODO: arrow key navigation. Only easily possibly with LEFT and RIGHT arrow key. UP and DOWN i don't see a way on how to solve that...
             return;
         }
+            // make sure this kind of selection events are not consumed, so that caretListener is invoked correctly. First make sure if caretListener also works when we consume the event here (?)
+
         command.execute(engine);
+
     }
 
     public void keyReleased(KeyEvent keyEvent) {

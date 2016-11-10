@@ -9,17 +9,17 @@ import java.util.List;
 public class Buffer {
     // TODO: implementation with Bindings: http://stackoverflow.com/questions/11314863/javafx-bidirectional-binding-not-working-with-the-control-becoming-not-editable
 
-    private List<String> content;
+    private List<Character> content;
 
     public Buffer() {
-        content = new ArrayList<String>();
+        content = new ArrayList<Character>();
     }
 
-    private Buffer(List<String> content) {
+    private Buffer(List<Character> content) {
         this.content = content;
     }
 
-    public void insertAtPosition(String character, int position) {
+    public void insertAtPosition(char character, int position) {
         if (isValidPositionWithFirst(position)) {
             content.add(position, character);
         } else if (isLastPosition(position)) {
@@ -70,13 +70,13 @@ public class Buffer {
         return content.size();
     }
 
-    private List<String> getContent() {
+    private List<Character> getContent() {
         return content;
     }
 
     public String getStringContent() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(String s : content) {
+        for(Character s : content) {
             stringBuilder.append(s);
         }
         return stringBuilder.toString();

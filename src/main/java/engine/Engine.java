@@ -26,7 +26,7 @@ public class Engine implements EngineI {
         buffer = new Buffer();
     }
 
-    public void insertChar(String character) {
+    public void insertChar(char character) {
         deleteSelectionIfExists(selectionStart, selectionEnd);
 
         // Insert typed character
@@ -66,7 +66,7 @@ public class Engine implements EngineI {
         selectionEnd = 0;
 
         notifyCursorChange();
-        notifySelectionChange();
+        //notifySelectionChange();
     }
 
     /**
@@ -150,7 +150,7 @@ public class Engine implements EngineI {
         return false;
     }
 
-    public void attachObserver(EngineObserver engineObserver) {
+    public void registerObserver(EngineObserver engineObserver) {
         this.engineObserver = engineObserver;
     }
 

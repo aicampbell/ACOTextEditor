@@ -6,9 +6,9 @@ import engine.Engine;
  * Created by mo on 14.10.16.
  */
 public class InsertCommand implements Command {
-    String character;
+    char character;
 
-    public InsertCommand(String character) {
+    public InsertCommand(char character) {
         this.character = character;
     }
 

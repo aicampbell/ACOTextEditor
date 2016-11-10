@@ -1,10 +1,10 @@
 package listener;
 
 import commands.Command;
-import commands.UpdateCursorCommand;
 import commands.UpdateSelectionCommand;
 import engine.Engine;
 
+import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
@@ -19,16 +19,18 @@ public class CursorListener implements CaretListener {
         this.engine = engine;
     }
 
-    public void caretUpdate(CaretEvent caretEvent) {
-        int cursorPos = caretEvent.getDot();
-        int otherEnd = caretEvent.getMark();
+    public void caretUpdate(CaretEvent e) {
+        final int cursorPos = e.getDot();
+        final int otherEnd = e.getMark();
 
         if(cursorPos != otherEnd) {
-            command = new UpdateSelectionCommand(cursorPos, otherEnd);
-        } else {
-            command = new UpdateCursorCommand(cursorPos);
-        }
 
-        command.execute(engine);
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    command = new UpdateSelectionCommand(cursorPos, otherEnd);
+                    command.execute(engine);
+                }
+            });
+        }
     }
 }

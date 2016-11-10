@@ -1,11 +1,17 @@
 import engine.Engine;
 import listener.CursorListener;
+import listener.MouseActionListener;
 import util.EngineObserver;
-import listener.KeyboardListener;
+import listener.KeyActionListener;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.TextAction;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 /**
  * Created by mo on 08.11.16.
@@ -28,6 +34,8 @@ public class TextEditor implements EngineObserver {
     }
 
     public void start(){
+        engine.registerObserver(this);
+
         setupMenu();
         setupTextPanes();
         setupSplitPane();
@@ -38,11 +46,40 @@ public class TextEditor implements EngineObserver {
         textPaneLeft = new JTextPane();
         textPaneRight = new JTextPane();
 
-        // TODO: make sure we can update text, cursor and selection in outer-right textPane
-        textPaneRight.setEnabled(false);
+        textPaneLeft.setEditable(false);
 
-        textPaneLeft.addKeyListener(new KeyboardListener(engine));
-        textPaneLeft.addCaretListener(new CursorListener(engine));
+        ActionMap am = textPaneLeft.getActionMap();
+        textPaneLeft.getActionMap().put(DefaultEditorKit.selectWordAction,
+                new TextAction(DefaultEditorKit.selectWordAction) {
+                    public void actionPerformed(ActionEvent e) {
+                        // DO NOTHING
+                    }
+                });
+        am.clear();
+        InputMap im = textPaneLeft.getInputMap();
+        im.clear();
+
+
+        textPaneLeft.addKeyListener(new KeyActionListener(engine));
+        //textPaneLeft.addCaretListener(new CursorListener(engine));
+        textPaneLeft.addMouseListener(new MouseActionListener(engine, textPaneLeft));
+
+        // Dirty hack to disable default event propagation. With that only our previously added listeners
+        // receive events.
+        textPaneLeft.setCaret(new DefaultCaret() {
+            @Override
+            protected void positionCaret(MouseEvent e) {
+                if (!e.isConsumed()) super.positionCaret(e);
+            }
+            @Override
+            protected void moveCaret(MouseEvent e) {
+                if (!e.isConsumed()) super.moveCaret(e);
+            }
+        });
+        textPaneLeft.getCaret().setVisible(true);
+        textPaneLeft.getCaret().setBlinkRate(500); // restore blinking caret
+
+
     }
 
     private void setupSplitPane() {
@@ -81,15 +118,15 @@ public class TextEditor implements EngineObserver {
     }
 
     public void updateText(String content) {
-        textPaneRight.setText(content);
+        textPaneLeft.setText(content);
     }
 
     public void updateCursor(int position) {
-        textPaneRight.setCaretPosition(position);
+        textPaneLeft.setCaretPosition(position);
     }
 
     public void updateSelection(boolean active, int start, int end) {
-        textPaneRight.setSelectionStart(start);
-        textPaneRight.setSelectionStart(end);
+        textPaneLeft.setSelectionStart(start);
+        textPaneLeft.setSelectionEnd(end);
     }
 }
