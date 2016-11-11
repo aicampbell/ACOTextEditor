@@ -134,6 +134,7 @@ public class TextEditor implements EngineObserver {
                         while (line != null) {
                             stringBuilder.append(line);
                             line = br.readLine();
+                            stringBuilder.append(System.getProperty("line.separator"));
                         }
                         char[] charArray = stringBuilder.toString().toCharArray();
 
