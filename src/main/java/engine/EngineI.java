@@ -19,4 +19,15 @@ public interface EngineI {
     void undoCommand();
 
     void redoCommand();
+<<<<<<< Updated upstream
+=======
+
+    void startRecording();
+
+    void stopRecording();
+
+    void replayRecording();
+
+    void openFile();
+>>>>>>> Stashed changes
 }
