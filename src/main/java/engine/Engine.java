@@ -96,7 +96,7 @@ public class Engine implements EngineI {
         }
     }
 
-    public void extendSelection(int newEnd) {
+    public void expandSelection(int newEnd) {
         if(isTextSelected) {
             updateSelection(selectionBase, newEnd);
         } else {

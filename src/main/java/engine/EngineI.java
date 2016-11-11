@@ -10,7 +10,9 @@ public interface EngineI {
 
     void updateCursor(int position);
 
-    void updateSelection(int start, int end);
+    void updateSelection(int base, int end);
+
+    void expandSelection(int newEnd);
 
     void cutSelection();
 

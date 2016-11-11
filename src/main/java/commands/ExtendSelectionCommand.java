@@ -13,6 +13,6 @@ public class ExtendSelectionCommand implements Command {
     }
 
     public void execute(Engine engine) {
-        engine.extendSelection(end);
+        engine.expandSelection(end);
     }
 }
