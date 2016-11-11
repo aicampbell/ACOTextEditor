@@ -1,5 +1,8 @@
+import commands.Command;
+import commands.CopyCommand;
+import commands.PasteCommand;
+import engine.Buffer;
 import engine.Engine;
-import listener.CursorListener;
 import listener.MouseActionListener;
 import util.EngineObserver;
 import listener.KeyActionListener;
@@ -10,6 +13,7 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.TextAction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -22,9 +26,7 @@ public class TextEditor implements EngineObserver {
     Engine engine;
 
     private JMenuBar jMenuBar;
-    private JMenu jMenu;
-    private JMenuItem jMenuItem1;
-    private JMenuItem jMenuItem2;
+    private JMenu fileMenu;
 
     private JSplitPane jSplitPane;
 
@@ -95,14 +97,78 @@ public class TextEditor implements EngineObserver {
     }
 
     private void setupMenu() {
+
+        //Setup Menu Bar
         jMenuBar = new JMenuBar();
-        jMenu = new JMenu("File");
-        jMenu.setMnemonic(KeyEvent.VK_F);
-        jMenuBar.add(jMenu);
-        jMenuItem1 = new JMenuItem("Open");
-        jMenu.add(jMenuItem1);
-        jMenuItem2 = new JMenuItem("Save");
-        jMenu.add(jMenuItem2);
+
+
+
+        fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+
+        JMenu editMenu = new JMenu("Edit");
+        JMenu macroMenu = new JMenu("Macro");
+
+        //File
+
+        JMenuItem openItem = new JMenuItem("Open");
+        JMenuItem saveItem = new JMenuItem("Save");
+
+        saveItem.setMnemonic(KeyEvent.VK_S);
+
+//        openItem.addActionListener();
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+
+        //Edit
+        JMenuItem redoItem = new JMenuItem("Redo");
+        JMenuItem undoItem = new JMenuItem("undo");
+        JMenuItem copyItem = new JMenuItem("Copy");
+        JMenuItem cutItem = new JMenuItem("Cut");
+        JMenuItem insertItem = new JMenuItem("Insert");
+        JMenuItem deleteItem = new JMenuItem("Delete");
+        JMenuItem pasteItem = new JMenuItem("Paste");
+
+
+        copyItem.setMnemonic(KeyEvent.VK_C);
+        cutItem.setMnemonic(KeyEvent.VK_X);
+        pasteItem.setMnemonic(KeyEvent.VK_V);
+
+        copyItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Command command = new CopyCommand();
+                command.execute(engine);
+            }
+        });
+
+        pasteItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Command command = new PasteCommand();
+                command.execute(engine);
+            }
+        });
+        editMenu.add(redoItem);
+        editMenu.add(undoItem);
+        editMenu.add(copyItem);
+        editMenu.add(cutItem);
+        editMenu.add(insertItem);
+        editMenu.add(deleteItem);
+        editMenu.add(pasteItem);
+
+        //Macro
+        JMenuItem startRecordItem = new JMenuItem("Start Record");
+        JMenuItem stopRecordItem = new JMenuItem("Stop Record");
+        JMenuItem playItem = new JMenuItem("Play");
+
+        macroMenu.add(startRecordItem);
+        macroMenu.add(stopRecordItem);
+        macroMenu.add(playItem);
+
+        //MenuBar
+        jMenuBar.add(fileMenu);
+        jMenuBar.add(editMenu);
+        jMenuBar.add(macroMenu);
+
     }
 
     private void setupFrame() {
