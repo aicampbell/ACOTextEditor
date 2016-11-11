@@ -13,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
+
 /**
  * Created by mo on 08.11.16.
  */
@@ -40,13 +42,12 @@ public class TextEditor implements EngineObserver {
         setupTextPanes();
         setupSplitPane();
         setupFrame();
+
+        textPaneLeft.requestFocus();
     }
 
     private void setupTextPanes() {
         textPaneLeft = new JTextPane();
-        textPaneRight = new JTextPane();
-
-        textPaneLeft.setEditable(false);
 
         ActionMap am = textPaneLeft.getActionMap();
         textPaneLeft.getActionMap().put(DefaultEditorKit.selectWordAction,
@@ -60,7 +61,7 @@ public class TextEditor implements EngineObserver {
         im.clear();
 
 
-        textPaneLeft.addKeyListener(new KeyActionListener(engine));
+        textPaneLeft.addKeyListener(new KeyActionListener(engine, textPaneLeft));
         //textPaneLeft.addCaretListener(new CursorListener(engine));
         textPaneLeft.addMouseListener(new MouseActionListener(engine, textPaneLeft));
 
@@ -79,7 +80,7 @@ public class TextEditor implements EngineObserver {
         textPaneLeft.getCaret().setVisible(true);
         textPaneLeft.getCaret().setBlinkRate(500); // restore blinking caret
 
-
+        textPaneLeft.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
     }
 
     private void setupSplitPane() {
@@ -104,9 +105,10 @@ public class TextEditor implements EngineObserver {
 
     private void setupFrame() {
         JFrame frame = new JFrame("Text Editor");
+        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setJMenuBar(jMenuBar);
         frame.setContentPane(jSplitPane);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.pack();
         frame.setLocationRelativeTo(null); // centers window on screen
         frame.setVisible(true);
@@ -125,8 +127,10 @@ public class TextEditor implements EngineObserver {
         textPaneLeft.setCaretPosition(position);
     }
 
-    public void updateSelection(boolean active, int start, int end) {
-        textPaneLeft.setSelectionStart(start);
-        textPaneLeft.setSelectionEnd(end);
+    public void updateSelection(boolean active, int selectionBase, int selectionEnd) {
+        textPaneLeft.setCaretPosition(selectionBase);
+        textPaneLeft.moveCaretPosition(selectionEnd);
+        //textPaneLeft.setSelectionStart(start);
+        //textPaneLeft.setSelectionEnd(end);
     }
 }

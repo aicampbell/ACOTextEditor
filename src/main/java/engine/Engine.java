@@ -15,7 +15,7 @@ public class Engine implements EngineI {
 
     private int cursorPosition = 0;
 
-    private int selectionStart = 0;
+    private int selectionBase = 0;
     private int selectionEnd = 0;
     private boolean isTextSelected = false;
 
@@ -27,7 +27,7 @@ public class Engine implements EngineI {
     }
 
     public void insertChar(char character) {
-        deleteSelectionIfExists(selectionStart, selectionEnd);
+        deleteSelectionIfExists(selectionBase, selectionEnd);
 
         // Insert typed character
         buffer.insertAtPosition(character, cursorPosition);
@@ -38,20 +38,28 @@ public class Engine implements EngineI {
     }
 
     public void deleteInDirection(int delDirection) {
-        if (deleteSelectionIfExists(selectionStart, selectionEnd)) {
-            return;
+        if (deleteSelectionIfExists(selectionBase, selectionEnd)) {
+            notifyTextChange();
+            notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_FORWARDS) {
             // "Delete" key was used, so the character at currentPosition should be deleted.
             // cursorPosition doesn't change.
             buffer.deleteAtPosition(cursorPosition);
+            // After text is updated on UI we need to make sure that the caret is restored as well.
+            notifyTextChange();
+            notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_BACKWARDS) {
             // "Backspace" key was used, so the previous character at currentPosition-1 should be deleted.
-            // cursorPosition is decremented.
             buffer.deleteAtPosition(cursorPosition - 1);
-            cursorPosition--;
-            notifyCursorChange();
+
+            // Only move cursor and notify UI about it when cursorPosition is not 0. If it is 0, we are not allowed to move the cursor and therefor we also don't need to notify the UI.
+            if(cursorPosition > 0) {
+                cursorPosition--;
+                // After text is updated on UI we need to make sure that the caret is restored as well.
+                notifyTextChange();
+                notifyCursorChange();
+            }
         }
-        notifyTextChange();
     }
 
     /**
@@ -62,11 +70,10 @@ public class Engine implements EngineI {
     public void updateCursor(int position) {
         cursorPosition = position;
         isTextSelected = false;
-        selectionStart = 0;
+        selectionBase = 0;
         selectionEnd = 0;
 
         notifyCursorChange();
-        //notifySelectionChange();
     }
 
     /**
@@ -76,32 +83,45 @@ public class Engine implements EngineI {
      * @param end
      */
     public void updateSelection(int start, int end) {
-        selectionStart = start;
-        selectionEnd = end;
-        isTextSelected = true;
-        cursorPosition = end;
+        if(start != end) {
+            selectionBase = start;
+            selectionEnd = end;
+            isTextSelected = true;
+            cursorPosition = end;
 
-        notifySelectionChange();
+            notifySelectionChange();
+        } else {
+            // Need for selections created by SHIFT + ARROW_KEYS where selection is reduced to 0-length after having a selection of at least size==1.
+            updateCursor(start);
+        }
+    }
+
+    public void extendSelection(int newEnd) {
+        if(isTextSelected) {
+            updateSelection(selectionBase, newEnd);
+        } else {
+            updateSelection(cursorPosition, newEnd);
+        }
     }
 
     public void cutSelection() {
         if (isTextSelected) {
-            clipboard = buffer.getCopy(selectionStart, selectionEnd);
+            clipboard = buffer.getCopy(selectionBase, selectionEnd);
         }
-        deleteSelectionIfExists(selectionStart, selectionEnd);
+        deleteSelectionIfExists(selectionBase, selectionEnd);
 
         notifyTextChange();
-        notifySelectionChange();
+        notifyCursorChange();
     }
 
     public void copySelection() {
         if (isTextSelected) {
-            clipboard = buffer.getCopy(selectionStart, selectionEnd);
+            clipboard = buffer.getCopy(selectionBase, selectionEnd);
         }
     }
 
     public void pasteClipboard() {
-        deleteSelectionIfExists(selectionStart, selectionEnd);
+        deleteSelectionIfExists(selectionBase, selectionEnd);
 
         if (clipboard != null && !clipboard.isEmpty()) {
             buffer.insertAtPosition(clipboard, cursorPosition);
@@ -110,7 +130,7 @@ public class Engine implements EngineI {
 
         notifyTextChange();
         notifyCursorChange();
-        notifySelectionChange();
+        //notifySelectionChange();
     }
 
     public void undoCommand() {
@@ -136,15 +156,16 @@ public class Engine implements EngineI {
     /**
      * Deletes the currently selected text, if there is a selection.
      *
-     * @param start index of selection.
+     * @param base index of selection.
      * @param end index of selection.
      * @return true if a selection has been deleted, or false if no selection is active.
      */
-    private boolean deleteSelectionIfExists(int start, int end) {
+    private boolean deleteSelectionIfExists(int base, int end) {
         if (isTextSelected) {
-            buffer.deleteInterval(start, end);
-            cursorPosition = selectionStart;
+            buffer.deleteInterval(base, end);
+            cursorPosition = base < end ? base : end;
             isTextSelected = false;
+
             return true;
         }
         return false;
@@ -163,6 +184,6 @@ public class Engine implements EngineI {
     }
 
     private void notifySelectionChange() {
-        engineObserver.updateSelection(isTextSelected, selectionStart, selectionEnd);
+        engineObserver.updateSelection(isTextSelected, selectionBase, selectionEnd);
     }
 }

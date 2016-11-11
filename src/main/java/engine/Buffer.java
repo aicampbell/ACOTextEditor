@@ -45,9 +45,11 @@ public class Buffer {
         }
     }
 
-    public void deleteInterval(int start, int end) {
-        if (isValidSelection(start, end)) {
-            content.subList(start, end).clear();
+    public void deleteInterval(int base, int end) {
+        if (isValidSelection(base, end)) {
+            content.subList(base, end).clear();
+        } else if (isValidSelection(end, base)) {
+            content.subList(end, base).clear();
         } else {
             throw new IndexOutOfBoundsException("Couldn't delete specified interval. Start and/or end index are invalid.");
         }
