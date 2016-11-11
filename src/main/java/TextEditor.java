@@ -121,14 +121,8 @@ public class TextEditor implements EngineObserver {
         macroMenu.setMnemonic(KeyEvent.VK_M);
 
         // File
-        JMenuItem openItem = new JMenuItem("Open");
-        JMenuItem saveItem = new JMenuItem("Save");
-
-        openItem.setMnemonic(KeyEvent.VK_O);
-        saveItem.setMnemonic(KeyEvent.VK_S);
-
-        openItem.addMenuKeyListener(new MenuKeyListener() {
-            public void menuKeyTyped(MenuKeyEvent menuKeyEvent) {
+        JMenuItem openItem = new JMenuItem(new AbstractAction("Open") {
+            public void actionPerformed(ActionEvent event) {
                 JFileChooser fileChooser = new JFileChooser();
 
                 if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -155,12 +149,12 @@ public class TextEditor implements EngineObserver {
                     }
                 }
             }
-
-            public void menuKeyPressed(MenuKeyEvent menuKeyEvent) {
-            }
-            public void menuKeyReleased(MenuKeyEvent menuKeyEvent) {
-            }
         });
+
+        JMenuItem saveItem = new JMenuItem("Save");
+
+        openItem.setMnemonic(KeyEvent.VK_O);
+        saveItem.setMnemonic(KeyEvent.VK_S);
 
         fileMenu.add(openItem);
         fileMenu.add(saveItem);
