@@ -1,22 +1,26 @@
 package engine;
 
-import commands.Command;
+import commands.interfaces.Command;
 
 import java.util.Stack;
 
-    /**
-     * Created by mo on 14.10.16.
-     */
-    public class CommandHistory {
+/**
+ * Created by mo on 14.10.16.
+ */
+public class UndoModule {
     private Engine engine;
 
     private Stack<Command> undoStack;
     private Stack<Command> redoStack;
 
-    public CommandHistory(Engine engine) {
+    public UndoModule(Engine engine) {
         this.engine = engine;
         undoStack = new Stack<Command>();
         redoStack = new Stack<Command>();
+    }
+
+    public void save(Command command) {
+        undoStack.push(command);
     }
 
     /**

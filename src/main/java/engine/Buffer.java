@@ -64,6 +64,8 @@ public class Buffer {
     public Buffer getCopy(int start, int end) {
         if (isValidSelection(start, end)) {
             return new Buffer(content.subList(start, end));
+        } else if (isValidSelection(end, start)) {
+            return new Buffer(content.subList(end, start));
         } else {
             // TODO: OR return new Buffer();
             throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");

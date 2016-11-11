@@ -1,6 +1,6 @@
 package listener;
 
-import commands.Command;
+import commands.interfaces.Command;
 import commands.UpdateCursorCommand;
 import commands.UpdateSelectionCommand;
 import engine.Engine;
@@ -13,18 +13,19 @@ import java.awt.event.MouseEvent;
  * Created by mo on 09.11.16.
  */
 public class MouseActionListener extends MouseAdapter {
+    private JTextPane textPane;
+
     private Engine engine;
-    private JTextPane target;
 
     private Command command;
 
     private int selectionStart;
     private int selectionEnd;
 
-    public MouseActionListener(Engine engine, JTextPane target) {
+    public MouseActionListener(JTextPane textPane, Engine engine) {
         super();
         this.engine = engine;
-        this.target = target;
+        this.textPane = textPane;
     }
 
     @Override
@@ -41,12 +42,12 @@ public class MouseActionListener extends MouseAdapter {
             // TODO: Probably command like SelectCurrentWordCommand.
             // TODO: Why the default double-click behaviour is not to disable? I mean we have e.consume() above...
             //selectionStart = 0;
-            //selectionEnd = target.getText().length();
+            //selectionEnd = textPane.getText().length();
             //command = new UpdateSelectionCommand(selectionStart, selectionEnd);
         } else if (e.getClickCount() >= 3) {
             // TODO: or seperate SelectAllCommand?
             selectionStart = 0;
-            selectionEnd = target.getText().length();
+            selectionEnd = textPane.getText().length();
             command = new UpdateSelectionCommand(selectionStart, selectionEnd);
             command.execute(engine);
         }
@@ -57,7 +58,7 @@ public class MouseActionListener extends MouseAdapter {
     public void mousePressed(MouseEvent e) {
         e.consume();
 
-        selectionStart = target.viewToModel(e.getPoint());
+        selectionStart = textPane.viewToModel(e.getPoint());
         command = new UpdateCursorCommand(selectionStart);
         command.execute(engine);
     }
@@ -79,7 +80,7 @@ public class MouseActionListener extends MouseAdapter {
     public void mouseDragged(MouseEvent e) {
         e.consume();
 
-        selectionEnd = target.viewToModel(e.getPoint());
+        selectionEnd = textPane.viewToModel(e.getPoint());
         command = new UpdateSelectionCommand(selectionStart, selectionEnd);
         command.execute(engine);
     }

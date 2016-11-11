@@ -1,5 +1,6 @@
 package commands;
 
+import commands.interfaces.Command;
 import engine.Engine;
 
 /**
@@ -11,5 +12,6 @@ public class CopyCommand implements Command {
 
     public void execute(Engine engine) {
         engine.copySelection();
+        engine.getRecordModule().record(this);
     }
 }

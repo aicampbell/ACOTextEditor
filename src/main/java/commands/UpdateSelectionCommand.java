@@ -1,5 +1,6 @@
 package commands;
 
+import commands.interfaces.Command;
 import engine.Engine;
 
 /**
@@ -16,5 +17,6 @@ public class UpdateSelectionCommand implements Command {
 
     public void execute(Engine engine) {
         engine.updateSelection(start, end);
+        engine.getRecordModule().record(this);
     }
 }

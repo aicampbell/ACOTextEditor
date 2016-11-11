@@ -24,7 +24,9 @@ public interface EngineI {
 
     void redoCommand();
 
-    void toggleRecording();
+    void startRecording();
 
-    void replay();
+    void stopRecording();
+
+    void replayRecording();
 }

@@ -1,7 +1,9 @@
 package listener;
 
 import commands.*;
+import commands.interfaces.Command;
 import engine.Engine;
+import engine.RecordModule;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,13 +28,15 @@ public class KeyActionListener implements KeyListener {
     private static char KEY_SYNCHRONOUS_IDLE = '\u0016'; // produced artifact when pressing CTRL+V
     private static char KEY_CANCEL = '\u0018'; // produced artifact when pressing CTRL+X
 
+    private JTextPane target;
+
     private Engine engine;
-    private JTextPane jTextPane;
+
     private Command command;
 
-    public KeyActionListener(Engine engine, JTextPane jTextPane) {
+    public KeyActionListener(JTextPane target, Engine engine) {
+        this.target = target;
         this.engine = engine;
-        this.jTextPane = jTextPane;
     }
 
     public void keyTyped(KeyEvent e) {
@@ -83,12 +87,12 @@ public class KeyActionListener implements KeyListener {
 
         /** SHIFT + ARROW_KEY selection */
         else if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_LEFT) {
-            int currentPosition = jTextPane.getCaretPosition();
+            int currentPosition = target.getCaretPosition();
             int newSelectionEnd = Math.max(0, currentPosition - 1);
             command = new ExtendSelectionCommand(newSelectionEnd);
         }
         else if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            int currentPosition = jTextPane.getCaretPosition();
+            int currentPosition = target.getCaretPosition();
             int newSelectionEnd = Math.max(0, currentPosition + 1);
             command = new ExtendSelectionCommand(newSelectionEnd);
         }
@@ -103,11 +107,11 @@ public class KeyActionListener implements KeyListener {
 
         /** ARROW_KEY navigation */
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            int newPosition = Math.max(0, jTextPane.getCaretPosition() - 1);
+            int newPosition = Math.max(0, target.getCaretPosition() - 1);
             command = new UpdateCursorCommand(newPosition);
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            int newPosition = Math.min(jTextPane.getText().length(), jTextPane.getCaretPosition() + 1);
+            int newPosition = Math.min(target.getText().length(), target.getCaretPosition() + 1);
             command = new UpdateCursorCommand(newPosition);
         }
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -117,7 +121,7 @@ public class KeyActionListener implements KeyListener {
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
             int newPosition = getNewCursorPosition(Y_UP);
             // Prevent cursor from jumping to position 0 when cursor is already in first line and ARROW_UP key is pressed.
-            if(newPosition == 0 && jTextPane.getCaret().getMagicCaretPosition().getX() > 3) {
+            if(newPosition == 0 && target.getCaret().getMagicCaretPosition().getX() > 3) {
                 return;
             }
             command = new UpdateCursorCommand(newPosition);
@@ -137,8 +141,8 @@ public class KeyActionListener implements KeyListener {
     }
 
     private int getNewCursorPosition(int yDiff) {
-        Point p = jTextPane.getCaret().getMagicCaretPosition();
+        Point p = target.getCaret().getMagicCaretPosition();
         Point newPoint = new Point((int)p.getX(), (int)(p.getY() + yDiff));
-        return jTextPane.viewToModel(newPoint);
+        return target.viewToModel(newPoint);
     }
 }

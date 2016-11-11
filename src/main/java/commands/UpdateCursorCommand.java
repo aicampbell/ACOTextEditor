@@ -1,5 +1,6 @@
 package commands;
 
+import commands.interfaces.Command;
 import engine.Engine;
 
 /**
@@ -14,5 +15,6 @@ public class UpdateCursorCommand implements Command {
 
     public void execute(Engine engine) {
         engine.updateCursor(position);
+        engine.getRecordModule().record(this);
     }
 }

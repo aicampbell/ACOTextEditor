@@ -1,8 +1,11 @@
+import commands.CopyCommand;
+import commands.CutCommand;
+import commands.PasteCommand;
+import commands.interfaces.Command;
 import engine.Engine;
-import listener.CursorListener;
+import listener.KeyActionListener;
 import listener.MouseActionListener;
 import util.EngineObserver;
-import listener.KeyActionListener;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
@@ -10,6 +13,7 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.TextAction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -22,17 +26,12 @@ public class TextEditor implements EngineObserver {
     Engine engine;
 
     private JMenuBar jMenuBar;
-    private JMenu jMenu;
-    private JMenuItem jMenuItem1;
-    private JMenuItem jMenuItem2;
-
-    private JSplitPane jSplitPane;
-
-    private JTextPane textPaneLeft;
-    private JTextPane textPaneRight;
+    private JPanel jPanel;
+    private JTextPane textPane;
 
     public TextEditor() {
         engine = new Engine();
+        //undoModule = new UndoModule();
     }
 
     public void start(){
@@ -40,36 +39,45 @@ public class TextEditor implements EngineObserver {
 
         setupMenu();
         setupTextPanes();
-        setupSplitPane();
+        setupPanel();
         setupFrame();
 
-        textPaneLeft.requestFocus();
+        textPane.requestFocus();
     }
 
     private void setupTextPanes() {
-        textPaneLeft = new JTextPane();
+        textPane = new JTextPane();
+        textPane.setPreferredSize(new Dimension(768, 512));
 
-        ActionMap am = textPaneLeft.getActionMap();
-        textPaneLeft.getActionMap().put(DefaultEditorKit.selectWordAction,
+        ActionMap am = textPane.getActionMap();
+        textPane.getActionMap().put(DefaultEditorKit.selectWordAction,
                 new TextAction(DefaultEditorKit.selectWordAction) {
                     public void actionPerformed(ActionEvent e) {
                         // DO NOTHING
                     }
                 });
         am.clear();
-        InputMap im = textPaneLeft.getInputMap();
+        InputMap im = textPane.getInputMap();
         im.clear();
 
 
-        textPaneLeft.addKeyListener(new KeyActionListener(engine, textPaneLeft));
-        //textPaneLeft.addCaretListener(new CursorListener(engine));
-        MouseActionListener mouseActionListener = new MouseActionListener(engine, textPaneLeft);
-        textPaneLeft.addMouseListener(mouseActionListener);
-        textPaneLeft.addMouseMotionListener(mouseActionListener);
+        // key listener
+        textPane.addKeyListener(new KeyActionListener(
+                textPane,
+                engine
+        ));
+
+        // mouse listener
+        MouseActionListener mouseActionListener = new MouseActionListener(
+                textPane,
+                engine
+        );
+        textPane.addMouseListener(mouseActionListener);
+        textPane.addMouseMotionListener(mouseActionListener);
 
         // Dirty hack to disable default event propagation. With that only our previously added listeners
         // receive events.
-        textPaneLeft.setCaret(new DefaultCaret() {
+        textPane.setCaret(new DefaultCaret() {
             @Override
             protected void positionCaret(MouseEvent e) {
                 if (!e.isConsumed()) super.positionCaret(e);
@@ -79,38 +87,94 @@ public class TextEditor implements EngineObserver {
                 if (!e.isConsumed()) super.moveCaret(e);
             }
         });
-        textPaneLeft.getCaret().setVisible(true);
-        textPaneLeft.getCaret().setBlinkRate(500); // restore blinking caret
+        textPane.getCaret().setVisible(true);
+        textPane.getCaret().setBlinkRate(500); // restore blinking caret
 
-        textPaneLeft.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        textPane.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
     }
 
-    private void setupSplitPane() {
-        jSplitPane = new JSplitPane();
-        jSplitPane.setPreferredSize(new Dimension(768, 512));
-        jSplitPane.setLeftComponent(textPaneLeft);
-        jSplitPane.setRightComponent(textPaneRight);
-        jSplitPane.setResizeWeight(0.5d);
-        jSplitPane.setEnabled(false);
+    private void setupPanel() {
+        jPanel = new JPanel();
+        jPanel.add(textPane);
     }
 
     private void setupMenu() {
         jMenuBar = new JMenuBar();
-        jMenu = new JMenu("File");
-        jMenu.setMnemonic(KeyEvent.VK_F);
-        jMenuBar.add(jMenu);
-        jMenuItem1 = new JMenuItem("Open");
-        jMenu.add(jMenuItem1);
-        jMenuItem2 = new JMenuItem("Save");
-        jMenu.add(jMenuItem2);
+
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        JMenu editMenu = new JMenu("Edit");
+        editMenu.setMnemonic(KeyEvent.VK_E);
+        JMenu macroMenu = new JMenu("Macro");
+        macroMenu.setMnemonic(KeyEvent.VK_M);
+
+        // File
+        JMenuItem openItem = new JMenuItem("Open");
+        openItem.setMnemonic(KeyEvent.VK_O);
+        JMenuItem saveItem = new JMenuItem("Save");
+        saveItem.setMnemonic(KeyEvent.VK_S);
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+
+        // Edit
+        JMenuItem undoItem = new JMenuItem("Undo");
+        undoItem.setMnemonic(KeyEvent.VK_U);
+        JMenuItem redoItem = new JMenuItem("Redo");
+        redoItem.setMnemonic(KeyEvent.VK_R);
+
+        JMenuItem copyItem = new JMenuItem("Copy");
+        copyItem.setMnemonic(KeyEvent.VK_C);
+        JMenuItem cutItem = new JMenuItem("Cut");
+        cutItem.setMnemonic(KeyEvent.VK_T);
+        JMenuItem pasteItem = new JMenuItem("Paste");
+        pasteItem.setMnemonic(KeyEvent.VK_P);
+
+        copyItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Command command = new CopyCommand();
+                command.execute(engine);
+            }
+        });
+        cutItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Command command = new CutCommand();
+                command.execute(engine);
+            }
+        });
+        pasteItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Command command = new PasteCommand();
+                command.execute(engine);
+            }
+        });
+        editMenu.add(undoItem);
+        editMenu.add(redoItem);
+        editMenu.add(copyItem);
+        editMenu.add(cutItem);
+        editMenu.add(pasteItem);
+
+        // Macro
+        JMenuItem startRecordItem = new JMenuItem("Start Recording");
+        startRecordItem.setMnemonic(KeyEvent.VK_S);
+        JMenuItem stopRecordItem = new JMenuItem("Stop Recording");
+        stopRecordItem.setMnemonic(KeyEvent.VK_T);
+        JMenuItem playItem = new JMenuItem("Play Recording");
+        playItem.setMnemonic(KeyEvent.VK_P);
+        macroMenu.add(startRecordItem);
+        macroMenu.add(stopRecordItem);
+        macroMenu.add(playItem);
+
+        // MenuBar
+        jMenuBar.add(fileMenu);
+        jMenuBar.add(editMenu);
+        jMenuBar.add(macroMenu);
     }
 
     private void setupFrame() {
         JFrame frame = new JFrame("Text Editor");
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setJMenuBar(jMenuBar);
-        frame.setContentPane(jSplitPane);
-        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        frame.setContentPane(jPanel);
         frame.pack();
         frame.setLocationRelativeTo(null); // centers window on screen
         frame.setVisible(true);
@@ -122,17 +186,15 @@ public class TextEditor implements EngineObserver {
     }
 
     public void updateText(String content) {
-        textPaneLeft.setText(content);
+        textPane.setText(content);
     }
 
     public void updateCursor(int position) {
-        textPaneLeft.setCaretPosition(position);
+        textPane.setCaretPosition(position);
     }
 
     public void updateSelection(boolean active, int selectionBase, int selectionEnd) {
-        textPaneLeft.setCaretPosition(selectionBase);
-        textPaneLeft.moveCaretPosition(selectionEnd);
-        //textPaneLeft.setSelectionStart(start);
-        //textPaneLeft.setSelectionEnd(end);
+        textPane.setCaretPosition(selectionBase);
+        textPane.moveCaretPosition(selectionEnd);
     }
 }

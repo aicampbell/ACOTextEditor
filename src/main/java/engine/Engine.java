@@ -1,7 +1,10 @@
 package engine;
 
+import commands.interfaces.Command;
 import commands.DeleteCommand;
 import util.EngineObserver;
+
+import java.util.List;
 
 /**
  * Created by Aidan on 10/10/2016.
@@ -9,7 +12,9 @@ import util.EngineObserver;
 public class Engine implements EngineI {
     private EngineObserver engineObserver;
 
-    private CommandHistory commandHistory;
+    //private UndoModule moduleUndoRedo;
+    private RecordModule recordModule;
+
     private Buffer buffer;
     private Buffer clipboard;
 
@@ -19,11 +24,15 @@ public class Engine implements EngineI {
     private int selectionEnd = 0;
     private boolean isTextSelected = false;
 
-    private boolean isRecordingActive = false;
+    //private boolean isRecording = false;
 
     public Engine() {
-        commandHistory = new CommandHistory(this);
+        recordModule = new RecordModule();
         buffer = new Buffer();
+    }
+
+    public RecordModule getRecordModule() {
+        return recordModule;
     }
 
     public void insertChar(char character) {
@@ -91,7 +100,7 @@ public class Engine implements EngineI {
 
             notifySelectionChange();
         } else {
-            // Need for selections created by SHIFT + ARROW_KEYS where selection is reduced to 0-length after having a selection of at least size==1.
+            /** Need for selections created by SHIFT + ARROW_KEYS where selection is reduced to 0-length after having a selection of at least size==1. */
             updateCursor(start);
         }
     }
@@ -132,7 +141,6 @@ public class Engine implements EngineI {
 
         notifyTextChange();
         notifyCursorChange();
-        //notifySelectionChange();
     }
 
     public void undoCommand() {
@@ -143,16 +151,19 @@ public class Engine implements EngineI {
 
     }
 
-    public void toggleRecording() {
-        if (isRecordingActive) {
-            // stop recording
-        } else {
-            // start recording
-        }
+    public void startRecording() {
+        recordModule.clear().start();
     }
 
-    public void replay() {
+    public void stopRecording() {
+        recordModule.stop();
+    }
 
+    public void replayRecording() {
+        List<Command> commands = recordModule.getReplayList();
+        for(Command command : commands) {
+            command.execute(this);
+        }
     }
 
     /**
