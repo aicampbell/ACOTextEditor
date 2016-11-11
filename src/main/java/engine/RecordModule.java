@@ -14,7 +14,7 @@ public class RecordModule {
     private boolean isRecording;
 
     public RecordModule() {
-        replayList = new ArrayList<Command>();
+        replayList = new ArrayList<>();
     }
 
     public void start() {

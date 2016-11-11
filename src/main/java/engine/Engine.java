@@ -26,8 +26,6 @@ public class Engine implements EngineI {
     private int selectionEnd = 0;
     private boolean isTextSelected = false;
 
-    //private boolean isRecording = false;
-
     public Engine() {
         recordModule = new RecordModule();
         buffer = new Buffer();

@@ -1,7 +1,4 @@
-import commands.CopyCommand;
-import commands.CutCommand;
-import commands.OpenCommand;
-import commands.PasteCommand;
+import commands.*;
 import commands.interfaces.Command;
 import engine.Engine;
 import listener.KeyActionListener;
@@ -121,8 +118,10 @@ public class TextEditor implements EngineObserver {
         macroMenu.setMnemonic(KeyEvent.VK_M);
 
         // File
-        JMenuItem openItem = new JMenuItem(new AbstractAction("Open") {
-            public void actionPerformed(ActionEvent event) {
+        JMenuItem openItem = new JMenuItem("Open");
+        openItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
                 JFileChooser fileChooser = new JFileChooser();
 
                 if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -201,15 +200,37 @@ public class TextEditor implements EngineObserver {
         // Macro
         JMenuItem startRecordItem = new JMenuItem("Start Recording");
         JMenuItem stopRecordItem = new JMenuItem("Stop Recording");
-        JMenuItem playItem = new JMenuItem("Play Recording");
+        JMenuItem replayRecordItem = new JMenuItem("Play Recording");
 
         startRecordItem.setMnemonic(KeyEvent.VK_S);
         stopRecordItem.setMnemonic(KeyEvent.VK_T);
-        playItem.setMnemonic(KeyEvent.VK_P);
+        replayRecordItem.setMnemonic(KeyEvent.VK_P);
+
+        startRecordItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Command command = new StartRecordingCommand();
+                command.execute(engine);
+            }
+        });
+        stopRecordItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Command command = new StopRecordingCommand();
+                command.execute(engine);
+            }
+        });
+        replayRecordItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Command command = new ReplayRecordingCommand();
+                command.execute(engine);
+            }
+        });
 
         macroMenu.add(startRecordItem);
         macroMenu.add(stopRecordItem);
-        macroMenu.add(playItem);
+        macroMenu.add(replayRecordItem);
     }
 
     private void setupFrame() {
