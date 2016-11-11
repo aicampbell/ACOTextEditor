@@ -1,5 +1,7 @@
 package engine;
 
+import java.util.List;
+
 /**
  * Created by mo on 14.10.16.
  */
@@ -29,4 +31,6 @@ public interface EngineI {
     void stopRecording();
 
     void replayRecording();
+
+    void openFile(List<Character> chars);
 }

@@ -1,5 +1,6 @@
 import commands.CopyCommand;
 import commands.CutCommand;
+import commands.OpenCommand;
 import commands.PasteCommand;
 import commands.interfaces.Command;
 import engine.Engine;
@@ -8,6 +9,8 @@ import listener.MouseActionListener;
 import util.EngineObserver;
 
 import javax.swing.*;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.TextAction;
@@ -16,6 +19,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.*;
+import java.util.List;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
@@ -101,32 +107,75 @@ public class TextEditor implements EngineObserver {
     private void setupMenu() {
         jMenuBar = new JMenuBar();
 
+        // MenuBar
         JMenu fileMenu = new JMenu("File");
-        fileMenu.setMnemonic(KeyEvent.VK_F);
         JMenu editMenu = new JMenu("Edit");
-        editMenu.setMnemonic(KeyEvent.VK_E);
         JMenu macroMenu = new JMenu("Macro");
+
+        jMenuBar.add(fileMenu);
+        jMenuBar.add(editMenu);
+        jMenuBar.add(macroMenu);
+
+        editMenu.setMnemonic(KeyEvent.VK_E);
+        fileMenu.setMnemonic(KeyEvent.VK_F);
         macroMenu.setMnemonic(KeyEvent.VK_M);
 
         // File
         JMenuItem openItem = new JMenuItem("Open");
-        openItem.setMnemonic(KeyEvent.VK_O);
         JMenuItem saveItem = new JMenuItem("Save");
+
+        openItem.setMnemonic(KeyEvent.VK_O);
         saveItem.setMnemonic(KeyEvent.VK_S);
+
+        openItem.addMenuKeyListener(new MenuKeyListener() {
+            public void menuKeyTyped(MenuKeyEvent menuKeyEvent) {
+                JFileChooser fileChooser = new JFileChooser();
+
+                if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+
+                    try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))){
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String line = br.readLine();
+                        while (line != null) {
+                            stringBuilder.append(line);
+                            line = br.readLine();
+                        }
+                        char[] charArray = stringBuilder.toString().toCharArray();
+
+                        List<Character> chars = new ArrayList<>();
+                        for(Character c : charArray) {
+                            chars.add(c);
+                        }
+
+                        Command openCommand = new OpenCommand(chars);
+                        openCommand.execute(engine);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            public void menuKeyPressed(MenuKeyEvent menuKeyEvent) {
+            }
+            public void menuKeyReleased(MenuKeyEvent menuKeyEvent) {
+            }
+        });
+
         fileMenu.add(openItem);
         fileMenu.add(saveItem);
 
         // Edit
         JMenuItem undoItem = new JMenuItem("Undo");
-        undoItem.setMnemonic(KeyEvent.VK_U);
         JMenuItem redoItem = new JMenuItem("Redo");
-        redoItem.setMnemonic(KeyEvent.VK_R);
-
         JMenuItem copyItem = new JMenuItem("Copy");
-        copyItem.setMnemonic(KeyEvent.VK_C);
         JMenuItem cutItem = new JMenuItem("Cut");
-        cutItem.setMnemonic(KeyEvent.VK_T);
         JMenuItem pasteItem = new JMenuItem("Paste");
+
+        undoItem.setMnemonic(KeyEvent.VK_U);
+        redoItem.setMnemonic(KeyEvent.VK_R);
+        copyItem.setMnemonic(KeyEvent.VK_C);
+        cutItem.setMnemonic(KeyEvent.VK_T);
         pasteItem.setMnemonic(KeyEvent.VK_P);
 
         copyItem.addActionListener(new ActionListener() {
@@ -147,6 +196,7 @@ public class TextEditor implements EngineObserver {
                 command.execute(engine);
             }
         });
+
         editMenu.add(undoItem);
         editMenu.add(redoItem);
         editMenu.add(copyItem);
@@ -155,19 +205,16 @@ public class TextEditor implements EngineObserver {
 
         // Macro
         JMenuItem startRecordItem = new JMenuItem("Start Recording");
-        startRecordItem.setMnemonic(KeyEvent.VK_S);
         JMenuItem stopRecordItem = new JMenuItem("Stop Recording");
-        stopRecordItem.setMnemonic(KeyEvent.VK_T);
         JMenuItem playItem = new JMenuItem("Play Recording");
+
+        startRecordItem.setMnemonic(KeyEvent.VK_S);
+        stopRecordItem.setMnemonic(KeyEvent.VK_T);
         playItem.setMnemonic(KeyEvent.VK_P);
+
         macroMenu.add(startRecordItem);
         macroMenu.add(stopRecordItem);
         macroMenu.add(playItem);
-
-        // MenuBar
-        jMenuBar.add(fileMenu);
-        jMenuBar.add(editMenu);
-        jMenuBar.add(macroMenu);
     }
 
     private void setupFrame() {

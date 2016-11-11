@@ -10,10 +10,10 @@ public class Buffer {
     private List<Character> content;
 
     public Buffer() {
-        content = new ArrayList<Character>();
+        content = new ArrayList<>();
     }
 
-    private Buffer(List<Character> content) {
+    public Buffer(List<Character> content) {
         /**
          * Copy the list here to avoid ConcurrentModificationException in
          * insertAtPosition(Buffer buffer, int position). There we work in elements
@@ -22,7 +22,7 @@ public class Buffer {
          * ArrayList-objects are different but also elements in it are different
          * between the lists.
          */
-        this.content = new ArrayList<Character>(content);
+        this.content = new ArrayList<>(content);
     }
 
     public void insertAtPosition(char character, int position) {

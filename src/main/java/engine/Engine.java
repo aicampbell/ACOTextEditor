@@ -4,6 +4,8 @@ import commands.interfaces.Command;
 import commands.DeleteCommand;
 import util.EngineObserver;
 
+import javax.swing.*;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -164,6 +166,15 @@ public class Engine implements EngineI {
         for(Command command : commands) {
             command.execute(this);
         }
+    }
+
+    public void openFile(List<Character> chars) {
+        buffer = new Buffer(chars);
+        cursorPosition = 0;
+        isTextSelected = false;
+
+        notifyTextChange();
+        notifyCursorChange();
     }
 
     /**
