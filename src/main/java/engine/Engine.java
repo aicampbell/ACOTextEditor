@@ -104,6 +104,13 @@ public class Engine implements EngineI {
         }
     }
 
+    public void copySelection() {
+        if (isTextSelected) {
+            clipboard = buffer.getCopy(selectionBase, selectionEnd);
+        }
+        System.out.println(clipboard);
+    }
+
     public void cutSelection() {
         if (isTextSelected) {
             clipboard = buffer.getCopy(selectionBase, selectionEnd);
@@ -114,18 +121,13 @@ public class Engine implements EngineI {
         notifyCursorChange();
     }
 
-    public void copySelection() {
-        if (isTextSelected) {
-            clipboard = buffer.getCopy(selectionBase, selectionEnd);
-        }
-    }
-
     public void pasteClipboard() {
         deleteSelectionIfExists(selectionBase, selectionEnd);
 
         if (clipboard != null && !clipboard.isEmpty()) {
+            int clipboardSize = clipboard.getSize();
             buffer.insertAtPosition(clipboard, cursorPosition);
-            cursorPosition += clipboard.getSize();
+            cursorPosition += clipboardSize;
         }
 
         notifyTextChange();
@@ -176,7 +178,7 @@ public class Engine implements EngineI {
     }
 
     private void notifyTextChange() {
-        engineObserver.updateText(buffer.getStringContent());
+        engineObserver.updateText(buffer.toString());
     }
 
     private void notifyCursorChange() {

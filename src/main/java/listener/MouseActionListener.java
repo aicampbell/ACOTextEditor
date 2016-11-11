@@ -75,6 +75,7 @@ public class MouseActionListener extends MouseAdapter {
     public void mouseExited(MouseEvent mouseEvent) {
     }
 
+    @Override
     public void mouseDragged(MouseEvent e) {
         e.consume();
 

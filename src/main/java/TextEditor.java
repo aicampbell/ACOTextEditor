@@ -63,7 +63,9 @@ public class TextEditor implements EngineObserver {
 
         textPaneLeft.addKeyListener(new KeyActionListener(engine, textPaneLeft));
         //textPaneLeft.addCaretListener(new CursorListener(engine));
-        textPaneLeft.addMouseListener(new MouseActionListener(engine, textPaneLeft));
+        MouseActionListener mouseActionListener = new MouseActionListener(engine, textPaneLeft);
+        textPaneLeft.addMouseListener(mouseActionListener);
+        textPaneLeft.addMouseMotionListener(mouseActionListener);
 
         // Dirty hack to disable default event propagation. With that only our previously added listeners
         // receive events.

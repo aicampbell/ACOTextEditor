@@ -7,8 +7,6 @@ import java.util.List;
  * This class represents a state of the text input area or a part of it.
  */
 public class Buffer {
-    // TODO: implementation with Bindings: http://stackoverflow.com/questions/11314863/javafx-bidirectional-binding-not-working-with-the-control-becoming-not-editable
-
     private List<Character> content;
 
     public Buffer() {
@@ -16,7 +14,15 @@ public class Buffer {
     }
 
     private Buffer(List<Character> content) {
-        this.content = content;
+        /**
+         * Copy the list here to avoid ConcurrentModificationException in
+         * insertAtPosition(Buffer buffer, int position). There we work in elements
+         * of ArrayList in addAll() and getContent() which leads to the exception.
+         * With this copy, we completely work on different objects (not only
+         * ArrayList-objects are different but also elements in it are different
+         * between the lists.
+         */
+        this.content = new ArrayList<Character>(content);
     }
 
     public void insertAtPosition(char character, int position) {
@@ -76,7 +82,8 @@ public class Buffer {
         return content;
     }
 
-    public String getStringContent() {
+    @Override
+    public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         for(Character s : content) {
             stringBuilder.append(s);

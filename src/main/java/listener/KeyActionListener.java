@@ -22,6 +22,9 @@ public class KeyActionListener implements KeyListener {
     private static char KEY_BACKSPACE = '\b';
     private static char KEY_DELETE = '\u007F';
     private static char KEY_ESCAPE = '\u001B';
+    private static char KEY_END_OF_TEXT = '\u0003'; // produced artifact when pressing CTRL+C (since it is used to abort something / signalling end of stream / ^C)
+    private static char KEY_SYNCHRONOUS_IDLE = '\u0016'; // produced artifact when pressing CTRL+V
+    private static char KEY_CANCEL = '\u0018'; // produced artifact when pressing CTRL+X
 
     private Engine engine;
     private JTextPane jTextPane;
@@ -37,7 +40,10 @@ public class KeyActionListener implements KeyListener {
 
         if (e.getKeyChar() == KEY_ESCAPE ||
                 e.getKeyChar() == KEY_DELETE ||
-                e.getKeyChar() == KEY_BACKSPACE) {
+                e.getKeyChar() == KEY_BACKSPACE ||
+                e.getKeyChar() == KEY_END_OF_TEXT ||
+                e.getKeyChar() == KEY_SYNCHRONOUS_IDLE ||
+                e.getKeyChar() == KEY_CANCEL) {
             return;
         }
 
