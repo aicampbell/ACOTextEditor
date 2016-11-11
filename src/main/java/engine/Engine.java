@@ -1,17 +1,11 @@
 package engine;
 
+import commands.Command;
 import commands.DeleteCommand;
-<<<<<<< Updated upstream
-=======
-import util.EngineObserver;
 
 import javax.swing.*;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.List;
->>>>>>> Stashed changes
-
-import static java.lang.System.lineSeparator;
 
 /**
  * Created by Aidan on 10/10/2016.
@@ -43,15 +37,13 @@ public class Engine implements EngineI {
             // "delete" key was used
             // ...
         } else if (delDirection == DeleteCommand.DEL_BACKWARDS) {
-<<<<<<< Updated upstream
             // "backspace" key was used
             // ...
         }
     }
 
     public void cutCurrentSelection() {
-=======
-            // "Backspace" key was used, so the previous character at currentPosition-1 should be deleted.
+          // "Backspace" key was used, so the previous character at currentPosition-1 should be deleted.
             buffer.deleteAtPosition(cursorPosition - 1);
 
             // Only move cursor and notify UI about it when cursorPosition is not 0. If it is 0, we are not allowed to move the cursor and therefor we also don't need to notify the UI.
@@ -105,9 +97,7 @@ public class Engine implements EngineI {
             updateSelection(cursorPosition, newEnd);
         }
     }
->>>>>>> Stashed changes
 
-    }
 
     public void copyCurrentSelection() {
 
@@ -124,8 +114,7 @@ public class Engine implements EngineI {
     public void redoCommand() {
 
     }
-<<<<<<< Updated upstream
-=======
+
 
     public void startRecording() {
         recordModule.clear().start();

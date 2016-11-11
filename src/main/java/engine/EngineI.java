@@ -19,8 +19,6 @@ public interface EngineI {
     void undoCommand();
 
     void redoCommand();
-<<<<<<< Updated upstream
-=======
 
     void startRecording();
 
@@ -29,5 +27,5 @@ public interface EngineI {
     void replayRecording();
 
     void openFile();
->>>>>>> Stashed changes
+
 }
