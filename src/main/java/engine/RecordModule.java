@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by mo on 11.11.16.
  */
-public class RecordModule {
+public class RecordModule implements IRecordModule {
     private List<Command> replayList;
 
     private boolean isRecording;

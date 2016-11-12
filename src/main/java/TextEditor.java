@@ -3,7 +3,7 @@ import commands.Command;
 import engine.Engine;
 import listener.KeyActionListener;
 import listener.MouseActionListener;
-import util.EngineObserver;
+import engine.EngineObserver;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
@@ -32,7 +32,6 @@ public class TextEditor implements EngineObserver {
 
     public TextEditor() {
         engine = new Engine();
-        //undoModule = new UndoModule();
     }
 
     public void start(){

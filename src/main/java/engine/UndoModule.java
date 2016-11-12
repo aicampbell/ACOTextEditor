@@ -5,7 +5,7 @@ import java.util.Stack;
 /**
  * Created by mo on 14.10.16.
  */
-public class UndoModule {
+public class UndoModule implements IUndoModule, MementoCaretaker {
     private Stack<Memento> undoStack;
     private Stack<Memento> redoStack;
 

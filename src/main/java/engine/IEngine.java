@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by mo on 14.10.16.
  */
-public interface EngineI {
+public interface IEngine {
     void insertChar(char character);
 
     void deleteInDirection(int delDirection);

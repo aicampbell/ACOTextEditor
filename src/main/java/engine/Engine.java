@@ -2,16 +2,16 @@ package engine;
 
 import commands.Command;
 import commands.DeleteCommand;
-import util.EngineObserver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Aidan on 10/10/2016.
  */
-public class Engine implements EngineI {
+public class Engine implements IEngine, Observable, MementoOriginator {
     // Observer pattern
-    private EngineObserver engineObserver;
+    private List<EngineObserver> observers;
 
     // Facade pattern
     private RecordModule recordModule;
@@ -30,6 +30,8 @@ public class Engine implements EngineI {
     public Engine() {
         buffer = new Buffer();
         clipboard = new Buffer();
+
+        observers = new ArrayList<>();
         recordModule = new RecordModule();
         undoModule = new UndoModule();
     }
@@ -116,6 +118,12 @@ public class Engine implements EngineI {
         } else {
             updateSelection(cursorPosition, newEnd);
         }
+    }
+
+    public void selectCurrentWord(int cursorPosition) {
+        int selectionBase = buffer.getWordStart(cursorPosition);
+        int selectionEnd = buffer.getWordEnd(cursorPosition);
+        updateSelection(selectionBase, selectionEnd);
     }
 
     public void copySelection() {
@@ -212,7 +220,7 @@ public class Engine implements EngineI {
         return false;
     }
 
-    private void recoverMemento(Memento memento) {
+    public void recoverMemento(Memento memento) {
         this.buffer = memento.getBuffer();
         this.clipboard = memento.getClipboard();
         this.cursorPosition = memento.getCursorPosition();
@@ -220,7 +228,7 @@ public class Engine implements EngineI {
         this.selectionEnd = memento.getSelectionEnd();
     }
 
-    private Memento createMemento() {
+    public Memento createMemento() {
         return new Memento(
                 buffer.getCopy(),
                 clipboard.getCopy(),
@@ -231,18 +239,22 @@ public class Engine implements EngineI {
     }
 
     public void registerObserver(EngineObserver engineObserver) {
-        this.engineObserver = engineObserver;
+        observers.add(engineObserver);
     }
 
-    private void notifyTextChange() {
-        engineObserver.updateText(buffer.toString());
+    public void unregisterObserver(EngineObserver engineObserver) {
+        observers.remove(engineObserver);
     }
 
-    private void notifyCursorChange() {
-        engineObserver.updateCursor(cursorPosition);
+    public void notifyTextChange() {
+        observers.forEach(o -> o.updateText(buffer.toString()));
     }
 
-    private void notifySelectionChange() {
-        engineObserver.updateSelection(isTextSelected, selectionBase, selectionEnd);
+    public void notifyCursorChange() {
+        observers.forEach(o -> o.updateCursor(cursorPosition));
+    }
+
+    public void notifySelectionChange() {
+        observers.forEach(o -> o.updateSelection(isTextSelected, selectionBase, selectionEnd));
     }
 }

@@ -28,15 +28,16 @@ public class KeyActionListener implements KeyListener {
     private static char KEY_CANCEL = '\u0018'; // produced artifact when pressing CTRL+X
     private static char KEY_SUBSTITUTE = '\u001A'; // produced artifact when pressing CTRL+Z
     private static char KEY_END_OF_MEDIUM = '\u0019'; // produced artifact when pressing CTRL+Y
+    private static char KEY_START_OF_HEADING = '\u0001'; // produced artifact when pressing CTRL+A
 
-    private JTextPane target;
+    private JTextPane textPane;
 
     private Engine engine;
 
     private Command command;
 
-    public KeyActionListener(JTextPane target, Engine engine) {
-        this.target = target;
+    public KeyActionListener(JTextPane textPane, Engine engine) {
+        this.textPane = textPane;
         this.engine = engine;
     }
 
@@ -50,7 +51,8 @@ public class KeyActionListener implements KeyListener {
                 e.getKeyChar() == KEY_SYNCHRONOUS_IDLE ||
                 e.getKeyChar() == KEY_CANCEL ||
                 e.getKeyChar() == KEY_SUBSTITUTE ||
-                e.getKeyChar() == KEY_END_OF_MEDIUM) {
+                e.getKeyChar() == KEY_END_OF_MEDIUM ||
+                e.getKeyChar() == KEY_START_OF_HEADING) {
             return;
         }
 
@@ -88,14 +90,22 @@ public class KeyActionListener implements KeyListener {
             command = new RedoCommand();
         }
 
+        /** CTRL + A select everything */
+        else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+            int selectionStart = 0;
+            int selectionEnd = textPane.getText().length();
+            command = new UpdateSelectionCommand(selectionStart, selectionEnd);
+            command.execute(engine);
+        }
+
         /** SHIFT + ARROW_KEY selection */
         else if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_LEFT) {
-            int currentPosition = target.getCaretPosition();
+            int currentPosition = textPane.getCaretPosition();
             int newSelectionEnd = Math.max(0, currentPosition - 1);
             command = new ExtendSelectionCommand(newSelectionEnd);
         }
         else if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            int currentPosition = target.getCaretPosition();
+            int currentPosition = textPane.getCaretPosition();
             int newSelectionEnd = Math.max(0, currentPosition + 1);
             command = new ExtendSelectionCommand(newSelectionEnd);
         }
@@ -110,11 +120,11 @@ public class KeyActionListener implements KeyListener {
 
         /** ARROW_KEY navigation */
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            int newPosition = Math.max(0, target.getCaretPosition() - 1);
+            int newPosition = Math.max(0, textPane.getCaretPosition() - 1);
             command = new UpdateCursorCommand(newPosition);
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            int newPosition = Math.min(target.getText().length(), target.getCaretPosition() + 1);
+            int newPosition = Math.min(textPane.getText().length(), textPane.getCaretPosition() + 1);
             command = new UpdateCursorCommand(newPosition);
         }
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -124,15 +134,12 @@ public class KeyActionListener implements KeyListener {
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
             int newPosition = getNewCursorPosition(Y_UP);
             // Prevent cursor from jumping to position 0 when cursor is already in first line and ARROW_UP key is pressed.
-            if(newPosition == 0 && target.getCaret().getMagicCaretPosition().getX() > 3) {
+            if(newPosition == 0 && textPane.getCaret().getMagicCaretPosition().getX() > 3) {
                 return;
             }
             command = new UpdateCursorCommand(newPosition);
         }
-
-
         else {
-            // TODO: arrow key navigation. Only easily possibly with LEFT and RIGHT arrow key. UP and DOWN i don't see a way on how to solve that...
             return;
         }
 
@@ -144,8 +151,8 @@ public class KeyActionListener implements KeyListener {
     }
 
     private int getNewCursorPosition(int yDiff) {
-        Point p = target.getCaret().getMagicCaretPosition();
+        Point p = textPane.getCaret().getMagicCaretPosition();
         Point newPoint = new Point((int)p.getX(), (int)(p.getY() + yDiff));
-        return target.viewToModel(newPoint);
+        return textPane.viewToModel(newPoint);
     }
 }

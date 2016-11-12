@@ -3,7 +3,7 @@ package engine;
 /**
  * Created by mo on 12.11.16.
  */
-public class Memento {
+public class Memento implements IMemento {
     /**
      * Use of null-object design pattern
      */

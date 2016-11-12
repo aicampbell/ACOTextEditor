@@ -76,6 +76,28 @@ public class Buffer {
         }
     }
 
+    public int getWordStart(int position) {
+        char c = content.get(position);
+        int nextCheck = position - 1;
+
+        while (nextCheck >= 0 &&
+                areCharsOfSameType(c, content.get(nextCheck))) {
+            nextCheck--;
+        }
+        return nextCheck + 1;
+    }
+
+    public int getWordEnd(int position) {
+        char c = content.get(position);
+        int nextCheck = position + 1;
+
+        while (nextCheck < content.size() &&
+                areCharsOfSameType(c, content.get(nextCheck))) {
+            nextCheck++;
+        }
+        return nextCheck;
+    }
+
     public boolean isEmpty() {
         return content.isEmpty();
     }
@@ -97,22 +119,30 @@ public class Buffer {
         return stringBuilder.toString();
     }
 
-
-    public boolean isValidPositionWithFirst(int position) {
+    private boolean isValidPositionWithFirst(int position) {
         return position >= 0 && position < content.size();
     }
 
-    public boolean isValidPositionWithLast(int position) {
+    private boolean isValidPositionWithLast(int position) {
         return position > 0 && position <= content.size();
     }
 
-    public boolean isLastPosition(int position) {
+    private boolean isLastPosition(int position) {
         return position == content.size();
     }
 
-    public boolean isValidSelection(int start, int end) {
+    private boolean isValidSelection(int start, int end) {
         return isValidPositionWithFirst(start) &&
                 isValidPositionWithLast(end) &&
                 start < end;
+    }
+
+    private boolean areCharsOfSameType(char c1, char c2) {
+        return ((isWhitespaceCharacter(c1) && isWhitespaceCharacter(c2)) ||
+                (!isWhitespaceCharacter(c1) && !isWhitespaceCharacter(c2)));
+    }
+
+    private boolean isWhitespaceCharacter(char c) {
+        return c == ' ' || c == '\r' || c == '\t';
     }
 }
