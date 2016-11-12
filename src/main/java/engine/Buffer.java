@@ -2,18 +2,19 @@ package engine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a state of the text input area or a part of it.
  */
 public class Buffer {
-    private List<Character> content;
+    private List<TextElement> content;
 
     public Buffer() {
         content = new ArrayList<>();
     }
 
-    public Buffer(List<Character> content) {
+    public Buffer(List<TextElement> content) {
         /**
          * Copy the list here to avoid ConcurrentModificationException in
          * insertAtPosition(Buffer buffer, int position). There we work in elements
@@ -40,7 +41,7 @@ public class Buffer {
         return new Buffer(content);
     }
 
-    public void insertAtPosition(char character, int position) {
+    public void insertAtPosition(TextElement character, int position) {
         if (isValidPositionWithFirst(position)) {
             content.add(position, character);
         } else if (isLastPosition(position)) {
@@ -77,22 +78,22 @@ public class Buffer {
     }
 
     public int getWordStart(int position) {
-        char c = content.get(position);
+        char c = content.get(position).getChar();
         int nextCheck = position - 1;
 
         while (nextCheck >= 0 &&
-                areCharsOfSameType(c, content.get(nextCheck))) {
+                areCharsOfSameType(c, content.get(nextCheck).getChar())) {
             nextCheck--;
         }
         return nextCheck + 1;
     }
 
     public int getWordEnd(int position) {
-        char c = content.get(position);
+        char c = content.get(position).getChar();
         int nextCheck = position + 1;
 
         while (nextCheck < content.size() &&
-                areCharsOfSameType(c, content.get(nextCheck))) {
+                areCharsOfSameType(c, content.get(nextCheck).getChar())) {
             nextCheck++;
         }
         return nextCheck;
@@ -106,14 +107,14 @@ public class Buffer {
         return content.size();
     }
 
-    private List<Character> getContent() {
+    public List<TextElement> getContent() {
         return content;
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(Character s : content) {
+        for(TextElement s : content) {
             stringBuilder.append(s);
         }
         return stringBuilder.toString();
@@ -137,12 +138,16 @@ public class Buffer {
                 start < end;
     }
 
-    private boolean areCharsOfSameType(char c1, char c2) {
+    private static boolean areCharsOfSameType(char c1, char c2) {
         return ((isWhitespaceCharacter(c1) && isWhitespaceCharacter(c2)) ||
                 (!isWhitespaceCharacter(c1) && !isWhitespaceCharacter(c2)));
     }
 
-    private boolean isWhitespaceCharacter(char c) {
-        return c == ' ' || c == '\r' || c == '\t';
+    public static boolean isWhitespaceCharacter(char c) {
+        return c == ' ' || c == '\r' || c == '\t' || c == '\n' || c == '\f' || c =='\u000B'; // last one is vertical tab (VT)
+    }
+
+    public static List<TextElement> convertCharsToTextElements(List<Character> chars) {
+        return chars.stream().map(c -> new TextElement(c)).collect(Collectors.toList());
     }
 }

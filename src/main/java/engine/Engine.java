@@ -3,6 +3,8 @@ package engine;
 import commands.Command;
 import commands.DeleteCommand;
 
+
+import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     // Facade pattern
     private RecordModule recordModule;
     private UndoModule undoModule;
+    private SpellCheckModule spellCheckModule;
 
     // Facade pattern
     private Buffer buffer;
@@ -34,17 +37,18 @@ public class Engine implements IEngine, Observable, MementoOriginator {
         observers = new ArrayList<>();
         recordModule = new RecordModule();
         undoModule = new UndoModule();
+        spellCheckModule = new SpellCheckModule();
     }
 
     public RecordModule getRecordModule() {
         return recordModule;
     }
 
-    public void insertChar(char character) {
+    public void insertChar(char c) {
         deleteSelectionIfExists(selectionBase, selectionEnd);
 
         // Insert typed character
-        buffer.insertAtPosition(character, cursorPosition);
+        buffer.insertAtPosition(new TextElement(c), cursorPosition);
         cursorPosition++;
         undoModule.save(createMemento());
 
@@ -194,12 +198,17 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     public void openFile(List<Character> chars) {
-        buffer = new Buffer(chars);
+        List<TextElement> content = Buffer.convertCharsToTextElements(chars);
+        buffer = new Buffer(content);
         cursorPosition = 0;
         isTextSelected = false;
 
         notifyTextChange();
         notifyCursorChange();
+    }
+
+    public void spellCheck(){
+        spellCheckModule.spellCheck(buffer);
     }
 
     /**
