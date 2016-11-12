@@ -1,9 +1,10 @@
 package util;
 
-import commands.interfaces.Visitor;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,14 +24,19 @@ public class SpellChecker {
     }
 
     protected SpellChecker(){
-         dictionary = new HashMap<String, String>();
+        dictionary = new HashMap<String, String>();
+        loadDictionary();
     }
 
-    public void LoadDictionary(String dictionaryPath){
+    public void loadDictionary() {
+
+        URL resource = SpellChecker.class.getResource("test.txt");
+            System.out.println(resource.toString());
+
         BufferedReader reader =  null;
         try {
             String word;
-            reader = new BufferedReader(new FileReader(dictionaryPath));
+            reader = new BufferedReader(new FileReader(""));
             while ((word = reader.readLine()) != null) {
                 this.dictionary.put(word, word);
             }

@@ -108,10 +108,12 @@ public class TextEditor implements EngineObserver {
         JMenu fileMenu = new JMenu("File");
         JMenu editMenu = new JMenu("Edit");
         JMenu macroMenu = new JMenu("Macro");
+        JMenu toolMenu = new JMenu("Tools");
 
         jMenuBar.add(fileMenu);
         jMenuBar.add(editMenu);
         jMenuBar.add(macroMenu);
+        jMenuBar.add(toolMenu);
 
         editMenu.setMnemonic(KeyEvent.VK_E);
         fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -231,6 +233,15 @@ public class TextEditor implements EngineObserver {
         macroMenu.add(startRecordItem);
         macroMenu.add(stopRecordItem);
         macroMenu.add(replayRecordItem);
+
+        JMenuItem spellCheckItem = new JMenuItem("Spell Check");
+
+        spellCheckItem.addActionListener(e ->{
+            Command command = new SpellCheckCommand();
+            command.execute(engine);
+        });
+
+        toolMenu.add(spellCheckItem);
     }
 
     private void setupFrame() {

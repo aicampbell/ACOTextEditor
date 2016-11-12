@@ -2,7 +2,9 @@ package engine;
 
 import commands.interfaces.Command;
 import commands.DeleteCommand;
+import commands.interfaces.Visitor;
 import util.EngineObserver;
+import util.SpellCheckerVisitor;
 
 import javax.swing.*;
 import java.io.*;
@@ -175,6 +177,16 @@ public class Engine implements EngineI {
 
         notifyTextChange();
         notifyCursorChange();
+    }
+
+    public void spellCheck(){
+        List<Character> chars = buffer.getContent();
+        Visitor spellChecker = new SpellCheckerVisitor();
+        for (Character character: chars
+             ) {
+            TextElement textElement = new TextElement(character);
+            textElement.accept(spellChecker);
+        }
     }
 
     /**

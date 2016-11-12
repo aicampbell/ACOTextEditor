@@ -25,7 +25,7 @@ public class Buffer {
         this.content = new ArrayList<>(content);
     }
 
-    public void insertAtPosition(char character, int position) {
+    public void insertAtPosition(Character character, int position) {
         if (isValidPositionWithFirst(position)) {
             content.add(position, character);
         } else if (isLastPosition(position)) {
@@ -80,7 +80,7 @@ public class Buffer {
         return content.size();
     }
 
-    private List<Character> getContent() {
+    public List<Character> getContent() {
         return content;
     }
 
