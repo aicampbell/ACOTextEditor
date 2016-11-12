@@ -35,7 +35,6 @@ public class SpellChecker {
     }
 
     private void loadDictionary() throws IOException {
-
         InputStream is = SpellChecker.class.getResourceAsStream("/dictionaries/british-english.txt");
         //BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
