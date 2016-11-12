@@ -35,10 +35,14 @@ public class SpellChecker {
     }
 
     private void loadDictionary() throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("test.txt").getFile());
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        InputStream is = SpellChecker.class.getResourceAsStream("/dictionaries/british-english.txt");
+        //BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+        //ClassLoader classLoader = getClass().getClassLoader();
+        //File file = new File(classLoader.getResource("test.txt").getFile());
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
             String word;
             while ((word = br.readLine()) != null) {
                 dictionary.add(word);
