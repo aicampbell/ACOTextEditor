@@ -36,7 +36,7 @@ public class SpellChecker {
 
     private void loadDictionary() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("test.txt").getFile());
+        File file = new File(classLoader.getResource("dictionaries/british-english.txt").getFile());
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String word;

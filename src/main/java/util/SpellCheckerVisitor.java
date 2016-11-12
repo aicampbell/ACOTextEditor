@@ -19,7 +19,6 @@ public class SpellCheckerVisitor implements Visitor {
                 || Character.isDigit(textElement.getCharacter())) {
             currentWord.append(textElement.getCharacter());
         } else {
-            System.out.println(currentWord);
             if (currentWord.length() > 0) {
                 spellCheck();
             }
