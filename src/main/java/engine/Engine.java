@@ -41,6 +41,8 @@ public class Engine implements EngineI {
         // Insert typed character
         buffer.insertAtPosition(character, cursorPosition);
         cursorPosition++;
+        System.out.println("cursor position: "+cursorPosition);
+        System.out.print(character);
 
         notifyTextChange();
         notifyCursorChange();
