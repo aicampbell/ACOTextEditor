@@ -16,6 +16,9 @@ public class UndoModule {
 
     public void save(Memento memento) {
         undoStack.push(memento);
+        
+        /** Clear redoStack to implement mose common undo/redo policy */
+        redoStack.clear();
     }
 
     /**

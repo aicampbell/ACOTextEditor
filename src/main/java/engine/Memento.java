@@ -30,11 +30,11 @@ public class Memento {
     }
 
     public Buffer getBuffer() {
-        return buffer;
+        return buffer.getCopy();
     }
 
     public Buffer getClipboard() {
-        return clipboard;
+        return clipboard.getCopy();
     }
 
     public int getCursorPosition() {
