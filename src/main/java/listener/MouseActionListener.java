@@ -1,6 +1,6 @@
 package listener;
 
-import commands.interfaces.Command;
+import commands.Command;
 import commands.UpdateCursorCommand;
 import commands.UpdateSelectionCommand;
 import engine.Engine;

@@ -25,6 +25,21 @@ public class Buffer {
         this.content = new ArrayList<>(content);
     }
 
+    public Buffer getCopy(int start, int end) {
+        if (isValidSelection(start, end)) {
+            return new Buffer(content.subList(start, end));
+        } else if (isValidSelection(end, start)) {
+            return new Buffer(content.subList(end, start));
+        } else {
+            // TODO: OR return new Buffer();
+            throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");
+        }
+    }
+
+    public Buffer getCopy() {
+        return new Buffer(content);
+    }
+
     public void insertAtPosition(char character, int position) {
         if (isValidPositionWithFirst(position)) {
             content.add(position, character);
@@ -58,17 +73,6 @@ public class Buffer {
             content.subList(end, base).clear();
         } else {
             throw new IndexOutOfBoundsException("Couldn't delete specified interval. Start and/or end index are invalid.");
-        }
-    }
-
-    public Buffer getCopy(int start, int end) {
-        if (isValidSelection(start, end)) {
-            return new Buffer(content.subList(start, end));
-        } else if (isValidSelection(end, start)) {
-            return new Buffer(content.subList(end, start));
-        } else {
-            // TODO: OR return new Buffer();
-            throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");
         }
     }
 

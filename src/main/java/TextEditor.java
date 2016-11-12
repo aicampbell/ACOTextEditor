@@ -1,13 +1,11 @@
 import commands.*;
-import commands.interfaces.Command;
+import commands.Command;
 import engine.Engine;
 import listener.KeyActionListener;
 import listener.MouseActionListener;
 import util.EngineObserver;
 
 import javax.swing.*;
-import javax.swing.event.MenuKeyEvent;
-import javax.swing.event.MenuKeyListener;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.TextAction;
@@ -79,7 +77,7 @@ public class TextEditor implements EngineObserver {
         textPane.addMouseMotionListener(mouseActionListener);
 
         // Dirty hack to disable default event propagation. With that only our previously added listeners
-        // receive events.
+        // receive events which is desired.
         textPane.setCaret(new DefaultCaret() {
             @Override
             protected void positionCaret(MouseEvent e) {
@@ -257,7 +255,9 @@ public class TextEditor implements EngineObserver {
     }
 
     public void updateSelection(boolean active, int selectionBase, int selectionEnd) {
-        textPane.setCaretPosition(selectionBase);
-        textPane.moveCaretPosition(selectionEnd);
+        if(active) {
+            textPane.setCaretPosition(selectionBase);
+            textPane.moveCaretPosition(selectionEnd);
+        }
     }
 }

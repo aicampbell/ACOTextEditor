@@ -1,9 +1,8 @@
 package listener;
 
 import commands.*;
-import commands.interfaces.Command;
+import commands.Command;
 import engine.Engine;
-import engine.RecordModule;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +26,8 @@ public class KeyActionListener implements KeyListener {
     private static char KEY_END_OF_TEXT = '\u0003'; // produced artifact when pressing CTRL+C (since it is used to abort something / signalling end of stream / ^C)
     private static char KEY_SYNCHRONOUS_IDLE = '\u0016'; // produced artifact when pressing CTRL+V
     private static char KEY_CANCEL = '\u0018'; // produced artifact when pressing CTRL+X
+    private static char KEY_SUBSTITUTE = '\u001A'; // produced artifact when pressing CTRL+Z
+    private static char KEY_END_OF_MEDIUM = '\u0019'; // produced artifact when pressing CTRL+Y
 
     private JTextPane target;
 
@@ -47,7 +48,9 @@ public class KeyActionListener implements KeyListener {
                 e.getKeyChar() == KEY_BACKSPACE ||
                 e.getKeyChar() == KEY_END_OF_TEXT ||
                 e.getKeyChar() == KEY_SYNCHRONOUS_IDLE ||
-                e.getKeyChar() == KEY_CANCEL) {
+                e.getKeyChar() == KEY_CANCEL ||
+                e.getKeyChar() == KEY_SUBSTITUTE ||
+                e.getKeyChar() == KEY_END_OF_MEDIUM) {
             return;
         }
 

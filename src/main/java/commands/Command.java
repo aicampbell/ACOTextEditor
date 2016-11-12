@@ -1,4 +1,4 @@
-package commands.interfaces;
+package commands;
 
 import engine.Engine;
 

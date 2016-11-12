@@ -1,22 +1,23 @@
 package engine;
 
-import commands.interfaces.Command;
+import commands.Command;
 import commands.DeleteCommand;
 import util.EngineObserver;
 
-import javax.swing.*;
-import java.io.*;
 import java.util.List;
 
 /**
  * Created by Aidan on 10/10/2016.
  */
 public class Engine implements EngineI {
+    // Observer pattern
     private EngineObserver engineObserver;
 
-    //private UndoModule moduleUndoRedo;
+    // Facade pattern
     private RecordModule recordModule;
+    private UndoModule undoModule;
 
+    // Facade pattern
     private Buffer buffer;
     private Buffer clipboard;
 
@@ -27,8 +28,10 @@ public class Engine implements EngineI {
     private boolean isTextSelected = false;
 
     public Engine() {
-        recordModule = new RecordModule();
         buffer = new Buffer();
+        clipboard = new Buffer();
+        recordModule = new RecordModule();
+        undoModule = new UndoModule();
     }
 
     public RecordModule getRecordModule() {
@@ -41,6 +44,7 @@ public class Engine implements EngineI {
         // Insert typed character
         buffer.insertAtPosition(character, cursorPosition);
         cursorPosition++;
+        undoModule.save(createMemento());
 
         notifyTextChange();
         notifyCursorChange();
@@ -69,6 +73,7 @@ public class Engine implements EngineI {
                 notifyCursorChange();
             }
         }
+        undoModule.save(createMemento());
     }
 
     /**
@@ -128,6 +133,8 @@ public class Engine implements EngineI {
 
         notifyTextChange();
         notifyCursorChange();
+
+        undoModule.save(createMemento());
     }
 
     public void pasteClipboard() {
@@ -141,14 +148,26 @@ public class Engine implements EngineI {
 
         notifyTextChange();
         notifyCursorChange();
+
+        undoModule.save(createMemento());
     }
 
     public void undoCommand() {
+        Memento memento = undoModule.undo();
+        recoverMemento(memento);
 
+        notifyTextChange();
+        notifyCursorChange();
+        notifySelectionChange();
     }
 
     public void redoCommand() {
+        Memento memento = undoModule.redo();
+        recoverMemento(memento);
 
+        notifyTextChange();
+        notifyCursorChange();
+        notifySelectionChange();
     }
 
     public void startRecording() {
@@ -191,6 +210,24 @@ public class Engine implements EngineI {
             return true;
         }
         return false;
+    }
+
+    private void recoverMemento(Memento memento) {
+        this.buffer = memento.getBuffer();
+        this.clipboard = memento.getClipboard();
+        this.cursorPosition = memento.getCursorPosition();
+        this.selectionBase = memento.getSelectionBase();
+        this.selectionEnd = memento.getSelectionEnd();
+    }
+
+    private Memento createMemento() {
+        return new Memento(
+                buffer.getCopy(),
+                clipboard.getCopy(),
+                cursorPosition,
+                selectionBase,
+                selectionEnd
+        );
     }
 
     public void registerObserver(EngineObserver engineObserver) {

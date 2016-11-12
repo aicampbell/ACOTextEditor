@@ -1,6 +1,6 @@
 package engine;
 
-import commands.interfaces.Command;
+import commands.Command;
 
 import java.util.ArrayList;
 import java.util.List;

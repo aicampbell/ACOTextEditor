@@ -1,6 +1,5 @@
 package commands;
 
-import commands.interfaces.Command;
 import engine.Engine;
 
 import java.util.List;
