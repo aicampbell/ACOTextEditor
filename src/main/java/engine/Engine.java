@@ -182,9 +182,8 @@ public class Engine implements EngineI {
     public void spellCheck(){
         List<Character> chars = buffer.getContent();
         Visitor spellChecker = new SpellCheckerVisitor();
-        for (Character character: chars
-             ) {
-            TextElement textElement = new TextElement(character);
+        for (Character c : chars) {
+            TextElement textElement = new TextElement(c);
             textElement.accept(spellChecker);
         }
     }

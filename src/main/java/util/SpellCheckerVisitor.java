@@ -7,9 +7,7 @@ import engine.TextElement;
  * Created by aidan on 12/11/16.
  */
 public class SpellCheckerVisitor implements Visitor {
-
     private StringBuffer currentWord;
-
 
     public SpellCheckerVisitor() {
         this.currentWord = new StringBuffer();
@@ -17,29 +15,23 @@ public class SpellCheckerVisitor implements Visitor {
 
     @Override
     public void visitCharacter(TextElement textElement) {
-        if (Character.isAlphabetic(textElement.getCharacter().charValue())
-                || Character.isDigit(textElement.getCharacter().charValue())) {
-            this.currentWord.append(textElement.getCharacter());
+        if (Character.isAlphabetic(textElement.getCharacter())
+                || Character.isDigit(textElement.getCharacter())) {
+            currentWord.append(textElement.getCharacter());
         } else {
-//            this.spellCheck();
             System.out.println(currentWord);
-            if (this.currentWord.length() > 0) {
-                this.spellCheck();
+            if (currentWord.length() > 0) {
+                spellCheck();
             }
         }
-
     }
 
     private void spellCheck() {
-        String word = this.currentWord.toString();
-        if (!word.equals("") && SpellChecker.getInstance().isMisspelled(word)) {
-            System.out.println("error at word: "+ word);
+        String word = currentWord.toString();
+        if (!word.equals("") &&
+                SpellChecker.getInstance().isMisspelled(word)) {
+            System.out.println("error at word: " + word);
         }
-
-        this.currentWord = new StringBuffer();
-
+        currentWord = new StringBuffer();
     }
-
-
-
 }
