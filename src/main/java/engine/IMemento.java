@@ -1,16 +1,7 @@
 package engine;
 
 /**
- * Created by mo on 12.11.16.
+ * According to the slides is this an empty interface implying only the role of Memento for implementing classes.
  */
 public interface IMemento {
-    Buffer getBuffer();
-
-    Buffer getClipboard();
-
-    int getCursorPosition() ;
-
-    int getSelectionBase();
-
-    int getSelectionEnd();
 }
