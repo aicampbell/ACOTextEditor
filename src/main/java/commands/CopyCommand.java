@@ -3,7 +3,8 @@ package commands;
 import engine.Engine;
 
 /**
- * Created by mo on 14.10.16.
+ * This class represents the CopyCommand that is build and run when user
+ * decides to copy a selection of text in the editor.
  */
 public class CopyCommand implements Command {
     public CopyCommand() {

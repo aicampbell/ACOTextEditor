@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 /**
  * This class represents a state of the text input area or a part of it.
+ *
+ * It can represent the current text visible, the content of the clipboard
+ * or the content as part of a Memento object.
  */
 public class Buffer {
     private List<TextElement> content;
@@ -18,30 +21,53 @@ public class Buffer {
     public Buffer(List<TextElement> content) {
         /**
          * Copy the list here to avoid ConcurrentModificationException in
-         * insertAtPosition(Buffer buffer, int position). There we work in elements
+         * insertAtPosition(Buffer, int). There we work in elements
          * of ArrayList in addAll() and getContent() which leads to the exception.
          * With this copy, we completely work on different objects (not only
          * ArrayList-objects are different but also elements in it are different
-         * between the lists.
+         * between the lists. Creates a 'true copy'.
          */
         this.content = new ArrayList<>(content);
     }
 
+    /**
+     * Creates a copy of the buffer or a subset of it specified by the parameters.
+     *
+     * Since the start is not always smaller than the end of a selection, the parameters
+     * of this method are validated twice to guarantee providing a correct copy of a
+     * selection.
+     *
+     * @param start position of the desired copy.
+     * @param end position of the desired copy.
+     *
+     * @return the copied Buffer.
+     */
     public Buffer getCopy(int start, int end) {
         if (isValidSelection(start, end)) {
             return new Buffer(content.subList(start, end));
         } else if (isValidSelection(end, start)) {
             return new Buffer(content.subList(end, start));
         } else {
-            // TODO: OR return new Buffer();
+            // Should not be reached.
             throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");
         }
     }
 
+    /**
+     * Creates a complete and true copy of the Buffer.
+     *
+     * @return the complete copy of Buffer.
+     */
     public Buffer getCopy() {
         return new Buffer(content);
     }
 
+    /**
+     * Used for inserting single characters in the Buffer.
+     *
+     * @param character to be inserted.
+     * @param position at which the character should be inserted.
+     */
     public void insertAtPosition(TextElement character, int position) {
         if (isValidPositionWithFirst(position)) {
             content.add(position, character);
@@ -52,6 +78,12 @@ public class Buffer {
         }
     }
 
+    /**
+     * Used for inserting multiple characters (stored in a Buffer object).
+     *
+     * @param buffer to be inserted.
+     * @param position at which the characters in the Buffer should be inserted.
+     */
     public void insertAtPosition(Buffer buffer, int position) {
         if (isValidPositionWithFirst(position)) {
             content.addAll(position, buffer.getContent());
@@ -62,12 +94,26 @@ public class Buffer {
         }
     }
 
+    /**
+     * Deletes one character at a position.
+     *
+     * @param position at which a character should be deleted.
+     */
     public void deleteAtPosition(int position) {
         if (isValidPositionWithFirst(position) && !content.isEmpty()) {
             content.remove(position);
         }
     }
 
+    /**
+     * Deletes a range of characters specified by a selection.
+     *
+     * Since the start is not always smaller than the end of a selection, the parameters
+     * of this method are validated twice to guarantee that specified selection is deleted.
+     *
+     * @param base position of selection to be deleted.
+     * @param end position of selection to be deleted.
+     */
     public void deleteInterval(int base, int end) {
         if (isValidSelection(base, end)) {
             content.subList(base, end).clear();
@@ -78,6 +124,16 @@ public class Buffer {
         }
     }
 
+    /**
+     * Used for computing the selection start when user double-clicks a word.
+     *
+     * This method decrements position as long as type of character at position
+     * is the same as the type of character at the initial position.
+     *
+     * @param position at which the user double-clicked.
+     *
+     * @return the computed selection start.
+     */
     public int getWordStart(int position) {
         char c = content.get(position).getChar();
         int nextCheck = position - 1;
@@ -89,6 +145,16 @@ public class Buffer {
         return nextCheck + 1;
     }
 
+    /**
+     * Used for computing the selection end when user double-clicks a word.
+     *
+     * This method increments position as long as type of character at position
+     * is the same as the type of character at the initial position.
+     *
+     * @param position at which the user double-clicked.
+     *
+     * @return the computed selection end.
+     */
     public int getWordEnd(int position) {
         char c = content.get(position).getChar();
         int nextCheck = position + 1;
@@ -121,40 +187,105 @@ public class Buffer {
         return stringBuilder.toString();
     }
 
+    /**
+     * Checks if a position is valid for the current content of the text editor.
+     * E.g. this method is used to check if a character can be deleted at a position.
+     *
+     * This method returns true if cursor is at very first position.
+     * This method returns false if cursor is at very last position.
+     *
+     * @param position to be checked.
+     *
+     * @return result of the check as boolean.
+     */
     private boolean isValidPositionWithFirst(int position) {
         return position >= 0 && position < content.size();
     }
 
+    /**
+     * Checks if a position is valid for the current content of the text editor.
+     * E.g. this method is used to check if a selection is valid.
+     *
+     * This method returns false if cursor is at very first position.
+     * This method returns true if cursor is at very last position.
+     *
+     * @param position to be checked.
+     *
+     * @return result of the check as boolean.
+     */
     private boolean isValidPositionWithLast(int position) {
         return position > 0 && position <= content.size();
     }
 
+    /**
+     * Checks if a position is the last valid position in the text editor.
+     *
+     * @param position to be checked.
+     * @return result of the check as boolean.
+     */
     private boolean isLastPosition(int position) {
         return position == content.size();
     }
 
+    /**
+     * Checks if a selection specified by start and end position is a valid one
+     * in the context of the current state of the Buffer.
+     *
+     * @param start of selection.
+     * @param end of selection.
+     * @return result of the check as boolean.
+     */
     private boolean isValidSelection(int start, int end) {
         return isValidPositionWithFirst(start) &&
                 isValidPositionWithLast(end) &&
                 start < end;
     }
 
+    /**
+     * Checks if two characters are both whitespace characters or both non-whitespace
+     * characters. Used to determine start and end of a word when double-clicking it.
+     *
+     * @param c1 first character to be checked.
+     * @param c2 second character to be checked.
+     *
+     * @return result of the check as boolean
+     */
     private static boolean areCharsOfSameType(char c1, char c2) {
         return ((isWhitespaceCharacter(c1) && isWhitespaceCharacter(c2)) ||
                 (!isWhitespaceCharacter(c1) && !isWhitespaceCharacter(c2)));
     }
 
-    public static boolean isWhitespaceCharacter(char c) {
-        return c == ' ' || c == '\r' || c == '\t' || c == '\n' || c == '\f' || c =='\u000B'; // last one is vertical tab (VT)
+    /**
+     * Checks if a character is considered as whitespace character.
+     *
+     * @param character to be checked.
+     * @return true if character is a whitespace character. False if not.
+     */
+    public static boolean isWhitespaceCharacter(char character) {
+        return character == ' ' || character == '\r' || character == '\t' ||
+                character == '\n' || character == '\f' || character =='\u000B'; // last one is vertical tab (VT)
     }
 
     private static Pattern PATTERN_SPECIAL_CHARS = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
 
-    public static boolean isSpecialChar(char c) {
-        Matcher m = PATTERN_SPECIAL_CHARS.matcher(String.valueOf(c));
+    /**
+     * Checks if a character is considered as special character.
+     *
+     * @param character to be checked.
+     * @return true if character is a special character. False if not.
+     */
+    public static boolean isSpecialChar(char character) {
+        Matcher m = PATTERN_SPECIAL_CHARS.matcher(String.valueOf(character));
         return m.find();
     }
 
+    /**
+     * Converts a List<Character> to a List<TextElement>.
+     *
+     * @param chars to be converted.
+     *
+     * @return result as list.
+     */
     public static List<TextElement> convertCharsToTextElements(List<Character> chars) {
         return chars.stream().map(c -> new TextElement(c)).collect(Collectors.toList());
     }

@@ -1,7 +1,9 @@
 package engine;
 
 /**
- * According to the slides is this an empty interface implying only the role of Memento for implementing classes.
+ * This interface implies the role of a Memento for implementing classes.
+ *
+ * According to the slides is this an empty interface.
  */
 public interface IMemento {
 }

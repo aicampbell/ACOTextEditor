@@ -4,7 +4,8 @@ import engine.Engine;
 import engine.RecordModule;
 
 /**
- * Created by mo on 14.10.16.
+ * This class represents the CutCommand that is build and run when user
+ * decides to cut a selection of text in the editor.
  */
 public class CutCommand implements Command {
     public CutCommand() {

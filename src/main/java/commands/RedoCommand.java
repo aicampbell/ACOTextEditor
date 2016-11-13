@@ -4,7 +4,9 @@ import engine.Engine;
 import engine.RecordModule;
 
 /**
- * Created by mo on 14.10.16.
+ * This class represents the RedoCommand that is build and run when user
+ * decides to redo his previously undone actions. This doesn't imply that
+ * there is a state to redo in the engine.
  */
 public class RedoCommand implements Command {
     public RedoCommand() {

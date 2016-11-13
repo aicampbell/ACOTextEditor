@@ -3,7 +3,8 @@ package commands;
 import engine.Engine;
 
 /**
- * Created by mo on 11.11.16.
+ * This class represents the StopRecordingCommand that is build and run
+ * when user decides to stop recording a macro.
  */
 public class StopRecordingCommand implements Command {
     public StopRecordingCommand() {
