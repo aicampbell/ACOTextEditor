@@ -1,7 +1,8 @@
 package engine;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -145,6 +146,13 @@ public class Buffer {
 
     public static boolean isWhitespaceCharacter(char c) {
         return c == ' ' || c == '\r' || c == '\t' || c == '\n' || c == '\f' || c =='\u000B'; // last one is vertical tab (VT)
+    }
+
+    private static Pattern PATTERN_SPECIAL_CHARS = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+
+    public static boolean isSpecialChar(char c) {
+        Matcher m = PATTERN_SPECIAL_CHARS.matcher(String.valueOf(c));
+        return m.find();
     }
 
     public static List<TextElement> convertCharsToTextElements(List<Character> chars) {

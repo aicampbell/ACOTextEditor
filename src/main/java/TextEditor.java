@@ -1,14 +1,14 @@
 import commands.*;
 import commands.Command;
 import engine.Engine;
+import engine.Selection;
 import listener.KeyActionListener;
 import listener.MouseActionListener;
 import engine.EngineObserver;
+import ui.Underliner;
 
 import javax.swing.*;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.TextAction;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,8 +30,11 @@ public class TextEditor implements EngineObserver {
     private JPanel jPanel;
     private JTextPane textPane;
 
+    private Underliner redUnderliner;
+
     public TextEditor() {
         engine = new Engine();
+        redUnderliner = new Underliner(Color.RED);
     }
 
     public void start(){
@@ -269,5 +272,39 @@ public class TextEditor implements EngineObserver {
             textPane.setCaretPosition(selectionBase);
             textPane.moveCaretPosition(selectionEnd);
         }
+    }
+
+    public void updateMisspelledWords(List<Selection> selections) {
+        SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+        StyleConstants.setUnderline(attributeSet, true);
+
+        Highlighter highlighter = textPane.getHighlighter();
+        highlighter.removeAllHighlights();
+
+        for(Selection selection : selections) {
+            try {
+                highlighter.addHighlight(
+                        selection.getSelectionBase(),
+                        selection.getSelectionEnd(),
+                        redUnderliner
+                );
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * We can also use underline-attributes on a StyledDocument of the textPane.
+         * However, this makes underlined text copyable and 'part of the content'
+         * which is not desirable for a spell-check underlining.
+         */
+        /*selections.forEach(s -> textPane
+                .getStyledDocument()
+                .setCharacterAttributes(
+                        s.getSelectionBase(),
+                        s.getSelectionEnd() - s.getSelectionBase(),
+                        attributeSet,
+                        true)
+        );*/
     }
 }

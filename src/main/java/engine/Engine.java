@@ -4,9 +4,9 @@ import commands.Command;
 import commands.DeleteCommand;
 
 
-import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Aidan on 10/10/2016.
@@ -208,7 +208,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     public void spellCheck(){
-        spellCheckModule.spellCheck(buffer);
+        Map<Selection, String> misspelledWords = spellCheckModule.getMisspelledWords(buffer);
+
+        notifyMisspelledWordsChange(new ArrayList<>(misspelledWords.keySet()));
     }
 
     /**
@@ -257,6 +259,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
 
     public void notifyTextChange() {
         observers.forEach(o -> o.updateText(buffer.toString()));
+        spellCheck();
     }
 
     public void notifyCursorChange() {
@@ -265,5 +268,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
 
     public void notifySelectionChange() {
         observers.forEach(o -> o.updateSelection(isTextSelected, selectionBase, selectionEnd));
+    }
+
+    public void notifyMisspelledWordsChange(List<Selection> selections) {
+        observers.forEach(o -> o.updateMisspelledWords(selections));
     }
 }
