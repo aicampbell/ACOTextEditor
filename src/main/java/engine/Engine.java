@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class represents the backend (engine) of the text editor.
+ * This class represents the backend (engine) of the text editor. It's main
+ * purpose is to provide an API for the fronted that is specified in {@see IEngine}.
  *
  * It maintains the current state and uses various modules to extend its
  * capabilities. It receives commands that are part of the Command design
@@ -72,7 +73,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     private boolean isTextSelected = false;
 
     /**
-     * Constructor initializes all instance objects.
+     * Constructor instantiates all instance objects.
      */
     public Engine() {
         buffer = new Buffer();
@@ -84,9 +85,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
         spellCheckModule = new SpellCheckModule();
     }
 
-    /**
-     * State transformations invoked by the different Commands.
-     */
+    /************************************************************
+     * State transformations invoked by the different Commands. *
+     ************************************************************/
 
     /**
      * Inserts passed character at the cursor position of the current Engine's state.
@@ -113,12 +114,12 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * Invokes a delete action on the text. If and what kind of delete operation
      * can be applied, depends on some factors:
      * <ul>
-     *     <li>Does a selection exist that needs to be deleted (independent of the fact if BACK_SPACE- or DELETE-ke is pressed (reflected in parameter delDirection).</li>
+     *     <li>Does a selection exist that needs to be deleted (independent of the fact if BACK_SPACE or DELETE is pressed (reflected in parameter delDirection).</li>
      *     <li>Should a single character be deleted? If so, delDirection is important to give the direction of deletion relative to the current cursor position.</li>
      *     <li>Is there a character to delete at the current position? E.g. pressing BACK_SPACE at cursorPosition 0 should neither modify the current state nor give an exception.</li>
      * </ul>
      *
-     * @param delDirection an abstraction that determines if BACK_SPACE- or DELETE-key was pressed by the user.
+     * @param delDirection an abstraction that determines if BACK_SPACE or DELETE was pressed by the user.
      */
     public void deleteInDirection(int delDirection) {
         /** If there is an active selection, only delete that. */
@@ -127,7 +128,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
             notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_FORWARDS) {
             /**
-             * DELETE-key was used, so the character at currentPosition should be deleted.
+             * DELETE was used, so the character at currentPosition should be deleted.
              * cursorPosition doesn't change.
              */
             buffer.deleteAtPosition(cursorPosition);
@@ -135,7 +136,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
             notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_BACKWARDS) {
             /**
-             * BACK_SPACE-key was used, so the previous character at currentPosition-1 should be deleted.
+             * BACK_SPACE was used, so the previous character at currentPosition-1 should be deleted.
              * cursorPosition is decremented.
              */
             buffer.deleteAtPosition(cursorPosition - 1);
