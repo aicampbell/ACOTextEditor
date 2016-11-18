@@ -174,6 +174,20 @@ public class TextEditor implements EngineObserver {
         cutItem.setMnemonic(KeyEvent.VK_T);
         pasteItem.setMnemonic(KeyEvent.VK_P);
 
+        undoItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Command command = new UndoCommand();
+                command.execute(engine);
+            }
+        });
+        redoItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Command command = new RedoCommand();
+                command.execute(engine);
+            }
+        });
         copyItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Command command = new CopyCommand();
