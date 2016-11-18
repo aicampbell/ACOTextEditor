@@ -13,27 +13,38 @@ import static commands.DeleteCommand.DEL_BACKWARDS;
 import static commands.DeleteCommand.DEL_FORWARDS;
 
 /**
- * Created by mo on 09.11.16.
+ * This class is an implementation of a Swing KeyListener that handles input via a keyboard.
  */
 public class KeyActionListener implements KeyListener {
+    /**
+     * Distance in points between two adjacent text lines in the text editor.
+     * Is used to compute the new cursor position when using the ARROW keys for
+     * in-text navigation (ARROW_UP and ARROW_DOWN in particular).
+     */
     private static int Y_UP = -15;
     private static int Y_DOWN = 15;
 
-    // TODO: Do we need these here?
+    /** Generated character when pressing BACKSPACE */
     private static char KEY_BACKSPACE = '\b';
+    /** Generated unicode character when pressing DELETE */
     private static char KEY_DELETE = '\u007F';
+    /** Generated unicode character when pressing ESCAPE */
     private static char KEY_ESCAPE = '\u001B';
-    private static char KEY_END_OF_TEXT = '\u0003'; // produced artifact when pressing CTRL+C (since it is used to abort something / signalling end of stream / ^C)
-    private static char KEY_SYNCHRONOUS_IDLE = '\u0016'; // produced artifact when pressing CTRL+V
-    private static char KEY_CANCEL = '\u0018'; // produced artifact when pressing CTRL+X
-    private static char KEY_SUBSTITUTE = '\u001A'; // produced artifact when pressing CTRL+Z
-    private static char KEY_END_OF_MEDIUM = '\u0019'; // produced artifact when pressing CTRL+Y
-    private static char KEY_START_OF_HEADING = '\u0001'; // produced artifact when pressing CTRL+A
+    /** Generated unicode character when pressing CTRL + C */
+    private static char KEY_END_OF_TEXT = '\u0003';
+    /** Generated unicode character when pressing CTRL + V */
+    private static char KEY_SYNCHRONOUS_IDLE = '\u0016';
+    /** Generated unicode character when pressing CTRL + X */
+    private static char KEY_CANCEL = '\u0018';
+    /** Generated unicode character when pressing CTRL + Z */
+    private static char KEY_SUBSTITUTE = '\u001A';
+    /** Generated unicode character when pressing CTRL + Y */
+    private static char KEY_END_OF_MEDIUM = '\u0019';
+    /** Generated unicode character when pressing CTRL + A */
+    private static char KEY_START_OF_HEADING = '\u0001';
 
     private JTextPane textPane;
-
     private Engine engine;
-
     private Command command;
 
     public KeyActionListener(JTextPane textPane, Engine engine) {
@@ -41,6 +52,12 @@ public class KeyActionListener implements KeyListener {
         this.engine = engine;
     }
 
+    /**
+     * Is invoked when a valid unicode character is associated with the KeyEvent.
+     * Also {@see https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html}
+     *
+     * @param e key event that occured
+     */
     public void keyTyped(KeyEvent e) {
         e.consume();
 
@@ -60,6 +77,12 @@ public class KeyActionListener implements KeyListener {
         command.execute(engine);
     }
 
+    /**
+     * Is invoked when any key on the keyboard is pressed (pushing key down).
+     * Also {@see https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html}
+     *
+     * @param e key event that occured
+     */
     public void keyPressed(KeyEvent e) {
         e.consume();
 
@@ -90,7 +113,7 @@ public class KeyActionListener implements KeyListener {
             command = new RedoCommand();
         }
 
-        /** CTRL + A select everything */
+        /** CTRL + A to select everything */
         else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
             int selectionStart = 0;
             int selectionEnd = textPane.getText().length();
@@ -98,7 +121,10 @@ public class KeyActionListener implements KeyListener {
             command.execute(engine);
         }
 
-        /** SHIFT + ARROW_KEY selection */
+        /**
+         * SHIFT + ARROW_KEY to select adjacent characters (adjacent in row
+         * and column).
+         */
         else if (e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_LEFT) {
             int currentPosition = textPane.getCaretPosition();
             int newSelectionEnd = Math.max(0, currentPosition - 1);
@@ -133,23 +159,42 @@ public class KeyActionListener implements KeyListener {
         }
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
             int newPosition = getNewCursorPosition(Y_UP);
-            // Prevent cursor from jumping to position 0 when cursor is already in first line and ARROW_UP key is pressed.
+            /**
+             * Prevent cursor from jumping to position 0 when cursor is already
+             * in first line and ARROW_UP key is pressed.
+             */
             if(newPosition == 0 && textPane.getCaret().getMagicCaretPosition().getX() > 3) {
                 return;
             }
             command = new UpdateCursorCommand(newPosition);
         }
         else {
+            /** If not key combination matches, we don't execute any command and do nothing. */
             return;
         }
 
         command.execute(engine);
     }
 
-    public void keyReleased(KeyEvent keyEvent) {
+    /**
+     * Is invoked when any key on the keyboard is released after pressing it.
+     * Also {@see https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html}
+     *
+     * @param e key event that occured
+     */
+    public void keyReleased(KeyEvent e) {
 
     }
 
+    /**
+     * Computes the the new cursor position when ARROW keys are used to navigate
+     * within the text (both for normal navigation as for text selection with hold
+     * SHIFT key).
+     *
+     * @param yDiff the vertical point offset from bottom to top. Is negative for jumping
+     *              a line up and positive for jumping a line down.
+     * @return the computed cursor position
+     */
     private int getNewCursorPosition(int yDiff) {
         Point p = textPane.getCaret().getMagicCaretPosition();
         Point newPoint = new Point((int)p.getX(), (int)(p.getY() + yDiff));

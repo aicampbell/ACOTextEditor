@@ -3,9 +3,11 @@ package engine;
 import java.util.Stack;
 
 /**
- * Created by mo on 14.10.16.
+ * This class handles Undos and Redos by using the Memento design pattern.
+ *
+ * It does so by mainting Mementos (state of Engine) over two stacks.
  */
-public class UndoModule implements IUndoModule, MementoCaretaker {
+public class UndoModule implements MementoCaretaker {
     private Stack<Memento> undoStack;
     private Stack<Memento> redoStack;
 
@@ -41,7 +43,7 @@ public class UndoModule implements IUndoModule, MementoCaretaker {
                 return undoStack.peek();
             }
         }
-        return Memento.InitialMemento;
+        return Memento.getInitialMomento();
     }
 
     /**
@@ -66,6 +68,7 @@ public class UndoModule implements IUndoModule, MementoCaretaker {
         if(!undoStack.isEmpty()) {
             return undoStack.peek();
         }
-        return Memento.InitialMemento;
+
+        return Memento.getInitialMomento();
     }
 }

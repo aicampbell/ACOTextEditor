@@ -20,7 +20,7 @@ import java.util.Map;
 public class Engine implements IEngine, Observable, MementoOriginator {
     /**
      * Observers that are notified when the state changed. In our case, the
-     * list only contains one EngineObserver which is the TextEditor class
+     * list only contains one EngineObserver which is the ui.GUI class
      * (frontend).
      */
     private List<EngineObserver> observers;
@@ -60,11 +60,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     /** Indicates the current position of the cursor in the text. */
     private int cursorPosition = 0;
 
-    // TODO: Replace with Selection object.
-    /** Indicates the starting position of a selection created by the user */
-    private int selectionBase = 0;
-    /** Indicates the ending position of a selection created by the user */
-    private int selectionEnd = 0;
+    /** Indicates the current selection start and end index in the text. */
+    private Selection selection;
 
     /**
      * Indicates if @see{selectionBase} and @see{selectionEnd} describe an active
@@ -78,6 +75,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     public Engine() {
         buffer = new Buffer();
         clipboard = new Buffer();
+        selection = new Selection();
 
         observers = new ArrayList<>();
         recordModule = new RecordModule();
@@ -95,10 +93,10 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * @param c character to be inserted.
      */
     public void insertChar(char c) {
-        deleteSelectionIfExists(selectionBase, selectionEnd);
+        deleteSelectionIfExists(selection);
 
         /** Insert typed character */
-        buffer.insertAtPosition(new TextElement(c), cursorPosition);
+        buffer.insertAtPosition(c, cursorPosition);
         cursorPosition++;
         undoModule.save(createMemento());
 
@@ -123,7 +121,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     public void deleteInDirection(int delDirection) {
         /** If there is an active selection, only delete that. */
-        if (deleteSelectionIfExists(selectionBase, selectionEnd)) {
+        if (deleteSelectionIfExists(selection)) {
             notifyTextChange();
             notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_FORWARDS) {
@@ -163,8 +161,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     public void updateCursor(int position) {
         cursorPosition = position;
         isTextSelected = false;
-        selectionBase = 0;
-        selectionEnd = 0;
+        selection.clear();
 
         notifyCursorChange();
     }
@@ -172,15 +169,15 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     /**
      * Updates the selection with two position indexes.
      *
-     * @param start position at which user initiated the selection.
+     * @param base position at which user initiated the selection.
      * @param end position at which user completed/ended the selection.
      */
-    public void updateSelection(int start, int end) {
+    public void updateSelection(int base, int end) {
         /** Make sure it is a real selection where both provided indexes differ from each other. */
-        if(start != end) {
+        if(base != end) {
             /** Assign selection properties. */
-            selectionBase = start;
-            selectionEnd = end;
+            selection.setSelectionBase(base);
+            selection.setSelectionEnd(end);
             isTextSelected = true;
 
             /**
@@ -197,7 +194,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
              * Need for selections created by SHIFT + ARROW_KEYS where selection is reduced to 0-length
              * after having a selection of at least size==1. @see{expandSelection} method.
              */
-            updateCursor(start);
+            updateCursor(base);
         }
     }
 
@@ -210,7 +207,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     public void expandSelection(int newEnd) {
         /** If there exists a selection, expand it. If not, create a new selection where {@code selectionStart} will be the current cursor position. */
         if(isTextSelected) {
-            updateSelection(selectionBase, newEnd);
+            updateSelection(selection.getSelectionBase(), newEnd);
         } else {
             updateSelection(cursorPosition, newEnd);
         }
@@ -233,7 +230,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     public void copySelection() {
         if (isTextSelected) {
-            clipboard = buffer.getCopy(selectionBase, selectionEnd);
+            clipboard = buffer.getCopy(selection);
         }
     }
 
@@ -242,7 +239,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     public void cutSelection() {
         copySelection();
-        deleteSelectionIfExists(selectionBase, selectionEnd);
+        deleteSelectionIfExists(selection);
 
         notifyTextChange();
         notifyCursorChange();
@@ -259,7 +256,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
              * Existing selections are overwritten by pasting. Therefore we have to delete
              * the selection first.
              */
-            deleteSelectionIfExists(selectionBase, selectionEnd);
+            deleteSelectionIfExists(selection);
 
             int clipboardSize = clipboard.getSize();
             buffer.insertAtPosition(clipboard, cursorPosition);
@@ -336,13 +333,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * @param chars list of characters with which the engine needs to be filled.
      */
     public void openFile(List<Character> chars) {
-        /**
-         * Transform the characters into TextElements since it is our underlying
-         * custom data structure for text content
-         */
-        List<TextElement> content = Buffer.convertCharsToTextElements(chars);
-
-        buffer = new Buffer(content);
+        buffer = new Buffer(chars);
         cursorPosition = 0;
         isTextSelected = false;
 
@@ -359,19 +350,21 @@ public class Engine implements IEngine, Observable, MementoOriginator {
          * misspelled words. Each entry of the map contains the position (start
          * and end position) and value of a misspelled word.
          */
-        Map<Selection, String> misspelledWords = spellCheckModule.getMisspelledWords(buffer);
+        List<Selection> misspelledWordSelections = spellCheckModule.getMisspelledWords(buffer);
 
-        notifyMisspelledWordsChange(new ArrayList<>(misspelledWords.keySet()));
+        notifyMisspelledWordsChange(misspelledWordSelections);
     }
 
     /**
      * Helper method that deletes the currently selected text in case there is a selection.
      *
-     * @param base position of a selection
-     * @param end position of selection
+     * @param selection object to be deleted.
      * @return true if a selection has been deleted, or false if no selection is active. The return value can be used in the caller's code to have a feedback about the outcome of invoking this method.
      */
-    private boolean deleteSelectionIfExists(int base, int end) {
+    private boolean deleteSelectionIfExists(Selection selection) {
+        int base = selection.getSelectionBase();
+        int end = selection.getSelectionEnd();
+
         if (isTextSelected) {
             buffer.deleteInterval(base, end);
             cursorPosition = base < end ? base : end;
@@ -390,9 +383,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     public void recoverMemento(Memento memento) {
         this.buffer = memento.getBuffer();
         this.clipboard = memento.getClipboard();
+        this.selection = memento.getSelection();
         this.cursorPosition = memento.getCursorPosition();
-        this.selectionBase = memento.getSelectionBase();
-        this.selectionEnd = memento.getSelectionEnd();
     }
 
     /**
@@ -404,9 +396,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
         return new Memento(
                 buffer.getCopy(),
                 clipboard.getCopy(),
-                cursorPosition,
-                selectionBase,
-                selectionEnd
+                selection.getCopy(),
+                cursorPosition
         );
     }
 
@@ -451,7 +442,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * providing the new state of the selection.
      */
     public void notifySelectionChange() {
-        observers.forEach(o -> o.updateSelection(isTextSelected, selectionBase, selectionEnd));
+        observers.forEach(o -> o.updateSelection(isTextSelected, selection));
     }
 
     /**

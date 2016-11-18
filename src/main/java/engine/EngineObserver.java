@@ -27,10 +27,9 @@ public interface EngineObserver {
      * Is invoked when the text selection in Engine changes.
      *
      * @param active boolean specifiying if selection is active
-     * @param start position of the selection
-     * @param end position of the selection
+     * @param selection object of the selection
      */
-    void updateSelection(boolean active, int start, int end);
+    void updateSelection(boolean active, Selection selection);
 
     /**
      * Is invoked when a spell check is performed. The misspelled

@@ -6,11 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mo on 11.11.16.
+ * This class handles recording and providing macros.
  */
 public class RecordModule implements IRecordModule {
+    /**
+     * The commands recorded in a macro are added to this list.
+     */
     private List<Command> replayList;
 
+    /**
+     * This boolean keeps track of the recording state. In case its
+     * value is true, incoming commands are stored in the {@see record}-method.
+     */
     private boolean isRecording;
 
     public RecordModule() {

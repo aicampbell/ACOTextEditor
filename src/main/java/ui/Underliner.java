@@ -4,9 +4,13 @@ import javax.swing.text.*;
 import java.awt.*;
 
 /**
- * Created by mo on 13.11.16.
+ * This class implements a custom visual effect that is used to mark misspelled words with
+ * a specifically colored underline.
+ *
+ * Code is inspired by {@see http://www.java2s.com/Code/Java/Swing-JFC/JTextPaneHighlightExample.htm}
  */
 public class Underliner extends LayeredHighlighter.LayerPainter {
+    /** Color to be used for the underline. */
     private Color color;
 
     public Underliner(Color c) {
@@ -46,6 +50,5 @@ public class Underliner extends LayeredHighlighter.LayerPainter {
 
     @Override
     public void paint(Graphics graphics, int i, int i1, Shape shape, JTextComponent jTextComponent) {
-        // Do nothing. This method will never be called
     }
 }

@@ -3,7 +3,7 @@ package engine;
 import java.util.List;
 
 /**
- * This interface specifies the API between the frontend (GUI) and backend
+ * This interface specifies the API between the frontend (ui.GUI) and backend
  * (Engine) of the text editor. To maintain consistency, every listed
  * operation is invoked by a command created by the frontend.
  *
@@ -65,7 +65,7 @@ public interface IEngine {
      *
      * We decided to move this functionality into an own method since the selection
      * start is determined by the state of the Engine and not known
-     * in the GUI since the editor's state is managed by the Engine.
+     * in the ui.GUI since the editor's state is managed by the Engine.
      *
      * @param newEnd new end position of the selection.
      */

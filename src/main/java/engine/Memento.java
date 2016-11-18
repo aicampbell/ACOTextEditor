@@ -12,22 +12,20 @@ package engine;
  * </ul>
  */
 public class Memento implements IMemento {
-    /**
-     * Provides an initial/empty Memento. Makes use of the Null-object design pattern.
-     */
-    public static Memento InitialMemento = new Memento(
-            new Buffer(),
-            new Buffer(),
-            0,
-            0,
-            0
-    );
-
     private Buffer buffer;
     private Buffer clipboard;
+    private Selection selection;
     private int cursorPosition;
-    private int selectionBase;
-    private int selectionEnd;
+
+    public static Memento getInitialMomento() {
+        return new Memento();
+    }
+
+    /**
+     * Private empty default constructor to enable method {@see getInitialMemento}
+     */
+    private Memento() {
+    }
 
     /**
      * Constructor requires values for each of the defined component that contributes
@@ -36,15 +34,13 @@ public class Memento implements IMemento {
      * @param buffer text to be saved
      * @param clipboard clipboard to be saved
      * @param cursorPosition cursor position to be saved
-     * @param selectionBase selection start to be saved
-     * @param selectionEnd selection end to be saved
+     * @param selection selection to be saved
      */
-    public Memento(Buffer buffer, Buffer clipboard, int cursorPosition, int selectionBase, int selectionEnd) {
+    public Memento(Buffer buffer, Buffer clipboard, Selection selection, int cursorPosition) {
         this.buffer = buffer;
         this.clipboard = clipboard;
+        this.selection = selection;
         this.cursorPosition = cursorPosition;
-        this.selectionBase = selectionBase;
-        this.selectionEnd = selectionEnd;
     }
 
     /**
@@ -65,15 +61,11 @@ public class Memento implements IMemento {
         return clipboard.getCopy();
     }
 
+    public Selection getSelection() {
+        return selection;
+    }
+
     public int getCursorPosition() {
         return cursorPosition;
-    }
-
-    public int getSelectionBase() {
-        return selectionBase;
-    }
-
-    public int getSelectionEnd() {
-        return selectionEnd;
     }
 }

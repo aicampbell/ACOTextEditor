@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
  * or the content as part of a Memento object.
  */
 public class Buffer {
-    private List<TextElement> content;
+    private List<Character> content;
 
     public Buffer() {
         content = new ArrayList<>();
     }
 
-    public Buffer(List<TextElement> content) {
+    public Buffer(List<Character> content) {
         /**
          * Copy the list here to avoid ConcurrentModificationException in
          * insertAtPosition(Buffer, int). There we work in elements
@@ -34,19 +34,21 @@ public class Buffer {
      * Creates a copy of the buffer or a subset of it specified by the parameters.
      *
      * Since the start is not always smaller than the end of a selection, the parameters
-     * of this method are validated twice to guarantee providing a correct copy of a
+     * of this method are validated twice to guarantee to provide a correct copy of a
      * selection.
      *
-     * @param start position of the desired copy.
-     * @param end position of the desired copy.
+     * @param selection object of the desired selection
      *
      * @return the copied Buffer.
      */
-    public Buffer getCopy(int start, int end) {
-        if (isValidSelection(start, end)) {
-            return new Buffer(content.subList(start, end));
-        } else if (isValidSelection(end, start)) {
-            return new Buffer(content.subList(end, start));
+    public Buffer getCopy(Selection selection) {
+        int base = selection.getSelectionBase();
+        int end = selection.getSelectionEnd();
+
+        if (isValidSelection(base, end)) {
+            return new Buffer(content.subList(base, end));
+        } else if (isValidSelection(end, base)) {
+            return new Buffer(content.subList(end, base));
         } else {
             // Should not be reached.
             throw new IndexOutOfBoundsException("Couldn't create Buffer copy. Start and/or end index are invalid.");
@@ -62,13 +64,20 @@ public class Buffer {
         return new Buffer(content);
     }
 
+    public char getCharAtPosition(int position) {
+        if(isValidPositionWithFirst(position)) {
+            return content.get(position);
+        }
+        throw new NullPointerException("Invalid position: " + position);
+    }
+
     /**
      * Used for inserting single characters in the Buffer.
      *
      * @param character to be inserted.
      * @param position at which the character should be inserted.
      */
-    public void insertAtPosition(TextElement character, int position) {
+    public void insertAtPosition(Character character, int position) {
         if (isValidPositionWithFirst(position)) {
             content.add(position, character);
         } else if (isLastPosition(position)) {
@@ -135,11 +144,11 @@ public class Buffer {
      * @return the computed selection start.
      */
     public int getWordStart(int position) {
-        char c = content.get(position).getChar();
+        char c = content.get(position);
         int nextCheck = position - 1;
 
         while (nextCheck >= 0 &&
-                areCharsOfSameType(c, content.get(nextCheck).getChar())) {
+                areCharsOfSameType(c, content.get(nextCheck))) {
             nextCheck--;
         }
         return nextCheck + 1;
@@ -156,11 +165,11 @@ public class Buffer {
      * @return the computed selection end.
      */
     public int getWordEnd(int position) {
-        char c = content.get(position).getChar();
+        char c = content.get(position);
         int nextCheck = position + 1;
 
         while (nextCheck < content.size() &&
-                areCharsOfSameType(c, content.get(nextCheck).getChar())) {
+                areCharsOfSameType(c, content.get(nextCheck))) {
             nextCheck++;
         }
         return nextCheck;
@@ -174,15 +183,15 @@ public class Buffer {
         return content.size();
     }
 
-    public List<TextElement> getContent() {
+    public List<Character> getContent() {
         return content;
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(TextElement s : content) {
-            stringBuilder.append(s);
+        for(Character c : content) {
+            stringBuilder.append(c);
         }
         return stringBuilder.toString();
     }
@@ -277,16 +286,5 @@ public class Buffer {
     public static boolean isSpecialChar(char character) {
         Matcher m = PATTERN_SPECIAL_CHARS.matcher(String.valueOf(character));
         return m.find();
-    }
-
-    /**
-     * Converts a List<Character> to a List<TextElement>.
-     *
-     * @param chars to be converted.
-     *
-     * @return result as list.
-     */
-    public static List<TextElement> convertCharsToTextElements(List<Character> chars) {
-        return chars.stream().map(c -> new TextElement(c)).collect(Collectors.toList());
     }
 }
