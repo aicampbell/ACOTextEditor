@@ -154,6 +154,16 @@ public class TextEditor implements EngineObserver {
         });
 
         JMenuItem saveItem = new JMenuItem("Save");
+        saveItem.addActionListener(e ->{
+            JFileChooser fileChooser = new JFileChooser();
+
+            if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+
+                Command saveCommand = new SaveCommand(selectedFile);
+                saveCommand.execute(engine);
+            }
+        });
 
         openItem.setMnemonic(KeyEvent.VK_O);
         saveItem.setMnemonic(KeyEvent.VK_S);

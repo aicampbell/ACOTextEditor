@@ -4,6 +4,7 @@ import commands.Command;
 import commands.DeleteCommand;
 
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
             buffer.deleteAtPosition(cursorPosition - 1);
 
             // Only move cursor and notify UI about it when cursorPosition is not 0. If it is 0, we are not allowed to move the cursor and therefor we also don't need to notify the UI.
-            if(cursorPosition > 0) {
+            if (cursorPosition > 0) {
                 cursorPosition--;
                 // After text is updated on UI we need to make sure that the caret is restored as well.
                 notifyTextChange();
@@ -103,7 +104,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * @param end
      */
     public void updateSelection(int start, int end) {
-        if(start != end) {
+        if (start != end) {
             selectionBase = start;
             selectionEnd = end;
             isTextSelected = true;
@@ -117,7 +118,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     public void expandSelection(int newEnd) {
-        if(isTextSelected) {
+        if (isTextSelected) {
             updateSelection(selectionBase, newEnd);
         } else {
             updateSelection(cursorPosition, newEnd);
@@ -192,9 +193,27 @@ public class Engine implements IEngine, Observable, MementoOriginator {
 
     public void replayRecording() {
         List<Command> commands = recordModule.getReplayList();
-        for(Command command : commands) {
+        for (Command command : commands) {
             command.execute(this);
         }
+    }
+
+    public void saveFile(File file) {
+        try {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(file)));
+            List<TextElement> content = buffer.getContent();
+            for (TextElement element : content) {
+                writer.write(element.getChar());
+            }
+            writer.close();
+            System.out.print("file saved");
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
     }
 
     public void openFile(List<Character> chars) {
@@ -207,7 +226,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
         notifyCursorChange();
     }
 
-    public void spellCheck(){
+    public void spellCheck() {
         Map<Selection, String> misspelledWords = spellCheckModule.getMisspelledWords(buffer);
 
         notifyMisspelledWordsChange(new ArrayList<>(misspelledWords.keySet()));
@@ -217,7 +236,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * Deletes the currently selected text, if there is a selection.
      *
      * @param base index of selection.
-     * @param end index of selection.
+     * @param end  index of selection.
      * @return true if a selection has been deleted, or false if no selection is active.
      */
     private boolean deleteSelectionIfExists(int base, int end) {
