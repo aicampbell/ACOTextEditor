@@ -2,6 +2,7 @@ package engine;
 
 import commands.Command;
 import commands.DeleteCommand;
+import org.assertj.core.util.VisibleForTesting;
 
 
 import java.util.ArrayList;
@@ -464,5 +465,40 @@ public class Engine implements IEngine, Observable, MementoOriginator {
 
     public RecordModule getRecordModule() {
         return recordModule;
+    }
+
+    @VisibleForTesting
+    public int getCursorPosition(){
+        return cursorPosition;
+    }
+
+    @VisibleForTesting
+    public void setCursorPosition(int cursorPosition){
+        this.cursorPosition = cursorPosition;
+    }
+
+    @VisibleForTesting
+    public Buffer getBuffer(){
+        return buffer;
+    }
+
+    @VisibleForTesting
+    public void setBuffer(Buffer buffer){
+        this.buffer = buffer;
+    }
+
+    @VisibleForTesting
+    public Selection getSelection(){
+        return selection;
+    }
+
+    @VisibleForTesting
+    public void setSelection(Selection selection) {
+        this.selection = selection;
+    }
+
+    @VisibleForTesting
+    public void setIsTextSelected(boolean newValue) {
+        this.isTextSelected = newValue;
     }
 }

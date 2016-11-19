@@ -1,5 +1,7 @@
 package engine;
 
+import org.assertj.core.util.VisibleForTesting;
+
 /**
  * This class abstracts a selection in the text.
  *
@@ -53,5 +55,10 @@ public class Selection {
 
     public void setSelectionEnd(int selectionEnd) {
         this.selectionEnd = selectionEnd;
+    }
+
+    @VisibleForTesting
+    public int getSelectionSize() {
+        return Math.abs(selectionBase - selectionEnd);
     }
 }

@@ -1,5 +1,7 @@
 package engine;
 
+import org.assertj.core.util.VisibleForTesting;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
