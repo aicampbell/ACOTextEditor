@@ -5,6 +5,7 @@ import commands.DeleteCommand;
 import org.assertj.core.util.VisibleForTesting;
 
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
 /**
  * This class represents the backend (engine) of the text editor. It's main
  * purpose is to provide an API for the fronted that is specified in {@link IEngine}.
- *
+ * <p>
  * It maintains the current state and uses various modules to extend its
  * capabilities. It receives commands that are part of the Command design
  * pattern, does state transformations and notifies the UI about changed
@@ -48,7 +49,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     private SpellCheckModule spellCheckModule;
 
-    /** Represents the current state of the text content. */
+    /**
+     * Represents the current state of the text content.
+     */
     private Buffer buffer;
 
     /**
@@ -58,10 +61,14 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     private Buffer clipboard;
 
-    /** Indicates the current position of the cursor in the text. */
+    /**
+     * Indicates the current position of the cursor in the text.
+     */
     private int cursorPosition = 0;
 
-    /** Indicates the current selection start and end index in the text. */
+    /**
+     * Indicates the current selection start and end index in the text.
+     */
     private Selection selection;
 
     /**
@@ -113,9 +120,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * Invokes a delete action on the text. If and what kind of delete operation
      * can be applied, depends on some factors:
      * <ul>
-     *     <li>Does a selection exist that needs to be deleted (independent of the fact if BACK_SPACE or DELETE is pressed (reflected in parameter {@code delDirection}).</li>
-     *     <li>Should a single character be deleted? If so, {@code delDirection} is important to give the direction of deletion relative to the current cursor position.</li>
-     *     <li>Is there a character to delete at the current position? E.g. pressing BACK_SPACE at {@link Engine#cursorPosition} 0 should neither modify the current state nor give an exception.</li>
+     * <li>Does a selection exist that needs to be deleted (independent of the fact if BACK_SPACE or DELETE is pressed (reflected in parameter {@code delDirection}).</li>
+     * <li>Should a single character be deleted? If so, {@code delDirection} is important to give the direction of deletion relative to the current cursor position.</li>
+     * <li>Is there a character to delete at the current position? E.g. pressing BACK_SPACE at {@link Engine#cursorPosition} 0 should neither modify the current state nor give an exception.</li>
      * </ul>
      *
      * @param delDirection an abstraction that determines if BACK_SPACE or DELETE was pressed by the user.
@@ -146,7 +153,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
              * is not 0. If it is 0, we are not allowed to move the cursor and therefore
              * we also don't need to notify the UI.
              */
-            if(cursorPosition > 0) {
+            if (cursorPosition > 0) {
                 cursorPosition--;
                 notifyTextChange();
                 notifyCursorChange();
@@ -172,11 +179,11 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * Updates the selection with two position indexes.
      *
      * @param base position at which user initiated the selection.
-     * @param end position at which user completed/ended the selection.
+     * @param end  position at which user completed/ended the selection.
      */
     public void updateSelection(int base, int end) {
         /** Make sure it is a real selection where both provided indexes differ from each other. */
-        if(base != end) {
+        if (base != end) {
             /** Assign selection properties. */
             selection.setSelectionBase(base);
             selection.setSelectionEnd(end);
@@ -213,7 +220,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
          * If there exists a selection, expand it. If not, create a new selection
          * where the selection base position will be {@link Engine#cursorPosition}.
          */
-        if(isTextSelected) {
+        if (isTextSelected) {
             updateSelection(selection.getSelectionBase(), newEnd);
         } else {
             updateSelection(cursorPosition, newEnd);
@@ -329,7 +336,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
          * A null-check for the list is not needed since we make sure in {@link RecordModule}
          * that null is never returned for this method.
          */
-        for(Command command : commands) {
+        for (Command command : commands) {
             command.execute(this);
         }
     }
@@ -349,9 +356,25 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     /**
+     * Saves the current text state to a file.
+     *
+     * @param file object in which text state is written to
+     */
+    public void saveFile(File file) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(file)))) {
+            for (Character character : buffer.getContent()) {
+                writer.write(character);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Performs a complete spell check on all words currently written in the text editor.
      */
-    public void spellCheck(){
+    public void spellCheck() {
         /**
          * The {@link Engine#spellCheckModule} expects the current text as input and returns
          * a map of misspelled words. Each entry of the map contains the position (start
@@ -468,27 +491,27 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     @VisibleForTesting
-    public int getCursorPosition(){
+    public int getCursorPosition() {
         return cursorPosition;
     }
 
     @VisibleForTesting
-    public void setCursorPosition(int cursorPosition){
+    public void setCursorPosition(int cursorPosition) {
         this.cursorPosition = cursorPosition;
     }
 
     @VisibleForTesting
-    public Buffer getBuffer(){
+    public Buffer getBuffer() {
         return buffer;
     }
 
     @VisibleForTesting
-    public void setBuffer(Buffer buffer){
+    public void setBuffer(Buffer buffer) {
         this.buffer = buffer;
     }
 
     @VisibleForTesting
-    public Selection getSelection(){
+    public Selection getSelection() {
         return selection;
     }
 
