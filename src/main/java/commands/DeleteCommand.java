@@ -10,7 +10,7 @@ import engine.RecordModule;
 public class DeleteCommand implements Command {
     /**
      * The two possible delete directions that reflect the origin of this command:
-     * DELETE- or BACK_SPACE-key.
+     * DELETE or BACK_SPACE key.
      */
     public static int DEL_BACKWARDS = 0;
     public static int DEL_FORWARDS = 1;

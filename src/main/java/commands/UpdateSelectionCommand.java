@@ -16,8 +16,8 @@ public class UpdateSelectionCommand implements Command {
      * The constructor takes the start and end position of the
      * selection as parameters.
      *
-     * @param start position of selection.
-     * @param end positon of selection.
+     * @param start position of selection
+     * @param end position of selection
      */
     public UpdateSelectionCommand(int start, int end) {
         this.start = start;

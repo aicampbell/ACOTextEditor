@@ -11,7 +11,7 @@ public class InsertCommand implements Command {
     char character;
 
     /**
-     * The constructer takes the typed character as parameter.
+     * The constructor takes the typed character as parameter.
      *
      * @param character that is typed.
      */

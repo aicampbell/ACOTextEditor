@@ -44,7 +44,7 @@ public interface IEngine {
      * Is invoked when user moves the cursor by either clicking with the mouse
      * somewhere in the text or by navigating through the next with ARROW keys.
      *
-     * @param position new position of the cursor.
+     * @param position new position of the cursor
      */
     void updateCursor(int position);
 
@@ -67,7 +67,7 @@ public interface IEngine {
      * start is determined by the state of the Engine and not known
      * in the ui.GUI since the editor's state is managed by the Engine.
      *
-     * @param newEnd new end position of the selection.
+     * @param newEnd new end position of the selection
      */
     void expandSelection(int newEnd);
 
@@ -77,7 +77,7 @@ public interface IEngine {
      * whitespace characters or sequence of non-whitespace characters (e.g. a word)
      * selectable.
      *
-     * @param position at which the user double-clicked.
+     * @param position at which the user double-clicked
      */
     void selectCurrentWord(int position);
 
@@ -111,13 +111,13 @@ public interface IEngine {
 
     /**
      * Is invoked when user wants to restore an action that was previously undone
-     * by {@see undoCommand}, for example by using CTRL + Y.
+     * by {@link IEngine#undoCommand()}, for example by using CTRL + Y.
      */
     void redoCommand();
 
     /**
      * Is invoked when user wants to start recording a macro. All following actions
-     * are then recorded until {@see stopRecording} is invoked to save the macro to
+     * are then recorded until {@link IEngine#stopRecording()} is invoked to save the macro to
      * replay it later.
      */
     void startRecording();

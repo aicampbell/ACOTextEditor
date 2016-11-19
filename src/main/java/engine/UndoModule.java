@@ -5,7 +5,7 @@ import java.util.Stack;
 /**
  * This class handles Undos and Redos by using the Memento design pattern.
  *
- * It does so by mainting Mementos (state of Engine) over two stacks.
+ * It does so by maintaining Mementos (state of Engine) over two stacks.
  */
 public class UndoModule implements MementoCaretaker {
     private Stack<Memento> undoStack;
@@ -19,21 +19,22 @@ public class UndoModule implements MementoCaretaker {
     public void save(Memento memento) {
         undoStack.push(memento);
 
-        /** Clear redoStack to implement mose common undo/redo policy */
+        /** Clear redoStack to implement mose common undo/redo policy. */
         redoStack.clear();
     }
 
     /**
-     * Is called for every undo() operation. Last Memento (state) in undoStack will be reverted
-     * and pushed to the redoStack.
+     * Is called for every undo operation. Last Memento (state) in {@link UndoModule#undoStack}
+     * will be reverted and pushed to the {@link UndoModule#redoStack}.
      *
      * @return Memento that should be new state of Engine and UI.
      */
     public Memento undo() {
         /**
-         * If undoStack is not empty, push most recent state n to redoStack.
-         * Return the state n-1 if undoStack is still not empty.
-         * If undoStack is in fact empty, return a zero state.
+         * If {@link UndoModule#undoStack} is not empty, push most recent state n to
+         * {@link UndoModule#redoStack}. Return the state n-1 if {@link UndoModule#undoStack}
+         * is still not empty. If {@link UndoModule#undoStack} is in fact empty, return an initial
+         * object.
          */
         if (!undoStack.isEmpty()) {
             Memento memento = undoStack.pop();
@@ -47,17 +48,18 @@ public class UndoModule implements MementoCaretaker {
     }
 
     /**
-     * Is called for every redo() operation. Last undone Memento in redoStack will be recovered
-     * and pushed to the undoStack.
+     * Is called for every redo operation. Last undone Memento in {@link UndoModule#redoStack}
+     * will be recovered and pushed to the {@link UndoModule#undoStack}.
      *
-     * @return Memento that should be new state of Engine and UI.
+     * @return Memento that should be new state of Engine and GUI.
      */
     public Memento redo() {
         /**
-         * If redoStack is not empty, push most recent state n to undoStack and return it.
-         * If redoStack is empty, nothing can be redone, so we keep returning the most recent
-         * state of undoStack. If undoStack is empty as well, then there hasn't been any
-         * interaction with the text editor yet, so we return a zero-state.
+         * If {@link UndoModule#undoStack} is not empty, push most recent state n to
+         * {@link UndoModule#redoStack} and return it. If {@link UndoModule#undoStack} is empty,
+         * nothing can be redone, so we keep returning the most recent state of
+         * {@link UndoModule#redoStack}. If {@link UndoModule#redoStack} is empty as well,
+         * then there hasn't been any interaction with the text editor yet, so we return a zero-state.
          */
         if (!redoStack.empty()) {
             Memento memento = redoStack.pop();

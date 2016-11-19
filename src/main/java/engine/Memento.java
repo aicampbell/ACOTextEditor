@@ -22,14 +22,14 @@ public class Memento implements IMemento {
     }
 
     /**
-     * Private empty default constructor to enable method {@see getInitialMemento}
+     * Private empty default constructor to enable method {@link Memento#getInitialMomento()}.
      */
     private Memento() {
     }
 
     /**
      * Constructor requires values for each of the defined component that contributes
-     * to a Momento object.
+     * to a Memento object.
      *
      * @param buffer text to be saved
      * @param clipboard clipboard to be saved

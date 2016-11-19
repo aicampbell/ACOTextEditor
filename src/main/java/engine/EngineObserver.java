@@ -26,7 +26,7 @@ public interface EngineObserver {
     /**
      * Is invoked when the text selection in Engine changes.
      *
-     * @param active boolean specifiying if selection is active
+     * @param active boolean specifying if selection is active
      * @param selection object of the selection
      */
     void updateSelection(boolean active, Selection selection);

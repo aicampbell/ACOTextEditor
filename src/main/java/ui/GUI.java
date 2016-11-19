@@ -35,7 +35,7 @@ public class GUI implements EngineObserver {
 
     private Underliner redUnderliner;
 
-    /** Constructor in which Underliner is initialized for the spell checker. */
+    /** Constructor in which {@link GUI#redUnderliner} is initialized for the spell checker. */
     public GUI() {
         redUnderliner = new Underliner(Color.RED);
     }
@@ -64,7 +64,7 @@ public class GUI implements EngineObserver {
         setupFrame();
 
         /**
-         * Explicitly set the focus on the textPane so that the user can start
+         * Explicitly set the focus on the {@link GUI#textPane} so that the user can start
          * typing immediately.
          */
         textPane.requestFocus();
@@ -78,7 +78,7 @@ public class GUI implements EngineObserver {
         textPane.setPreferredSize(new Dimension(768, 512));
 
         /**
-         * Remove default action and input map of textPane to disable
+         * Remove default action and input map of {@link GUI#textPane} to disable
          * potential default behaviours.
          */
         ActionMap am = textPane.getActionMap();
@@ -100,8 +100,8 @@ public class GUI implements EngineObserver {
 
         /**
          * Set a mouse listener. In order to support click and drag events,
-         * our listener must be added as regular MouseListener and as
-         * MouseMotionListener.
+         * our listener must be added as regular {@code MouseListener} and as
+         * {@code MouseMotionListener}.
          */
         MouseActionListener mouseActionListener = new MouseActionListener(
                 textPane,
@@ -135,7 +135,7 @@ public class GUI implements EngineObserver {
     }
 
     /**
-     * Set up panel which contains textPane.
+     * Set up panel which contains {@link GUI#textPane}.
      */
     private void setupPanel() {
         jPanel = new JPanel();
@@ -320,7 +320,7 @@ public class GUI implements EngineObserver {
 
     /**
      * Updates the UI by assigning the passed text content to the content of
-     * the textPane object.
+     * the {@link GUI#textPane} object.
      *
      * @param content new text content
      */
@@ -361,7 +361,7 @@ public class GUI implements EngineObserver {
         StyleConstants.setUnderline(attributeSet, true);
 
         /**
-         * We can also use underline-attributes on a StyledDocument of the textPane.
+         * We can also use underline-attributes on a StyledDocument of {@link GUI#textPane}.
          * However, this makes underlined text copyable and 'part of the content'
          * which is not desirable for a spell-check underlining. This is why we use
          * the Highlighter object here.
@@ -369,7 +369,7 @@ public class GUI implements EngineObserver {
         Highlighter highlighter = textPane.getHighlighter();
         highlighter.removeAllHighlights();
 
-        /** Highlight every word whichs position is given in a Selection object. */
+        /** Highlight every word which's position is given in a Selection object. */
         for(Selection selection : selections) {
             try {
                 highlighter.addHighlight(

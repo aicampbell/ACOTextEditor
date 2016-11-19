@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * This class represents the backend (engine) of the text editor. It's main
- * purpose is to provide an API for the fronted that is specified in {@see IEngine}.
+ * purpose is to provide an API for the fronted that is specified in {@link IEngine}.
  *
  * It maintains the current state and uses various modules to extend its
  * capabilities. It receives commands that are part of the Command design
@@ -52,8 +52,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
 
     /**
      * Represents the current state of the clipboard. The clipboard is also
-     * of type Buffer since it must be able a port or the whole of the variable
-     * @see{buffer}.
+     * of type Buffer since it must be able to store a port or the whole of
+     * the variable {@link Engine#buffer}.
      */
     private Buffer clipboard;
 
@@ -64,8 +64,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     private Selection selection;
 
     /**
-     * Indicates if @see{selectionBase} and @see{selectionEnd} describe an active
-     * selection or if these values can be ignored.
+     * Indicates if {@link Engine#selection} describe an active selection or
+     * if these values can be ignored.
      */
     private boolean isTextSelected = false;
 
@@ -112,9 +112,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * Invokes a delete action on the text. If and what kind of delete operation
      * can be applied, depends on some factors:
      * <ul>
-     *     <li>Does a selection exist that needs to be deleted (independent of the fact if BACK_SPACE or DELETE is pressed (reflected in parameter delDirection).</li>
-     *     <li>Should a single character be deleted? If so, delDirection is important to give the direction of deletion relative to the current cursor position.</li>
-     *     <li>Is there a character to delete at the current position? E.g. pressing BACK_SPACE at cursorPosition 0 should neither modify the current state nor give an exception.</li>
+     *     <li>Does a selection exist that needs to be deleted (independent of the fact if BACK_SPACE or DELETE is pressed (reflected in parameter {@code delDirection}).</li>
+     *     <li>Should a single character be deleted? If so, {@code delDirection} is important to give the direction of deletion relative to the current cursor position.</li>
+     *     <li>Is there a character to delete at the current position? E.g. pressing BACK_SPACE at {@link Engine#cursorPosition} 0 should neither modify the current state nor give an exception.</li>
      * </ul>
      *
      * @param delDirection an abstraction that determines if BACK_SPACE or DELETE was pressed by the user.
@@ -126,7 +126,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
             notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_FORWARDS) {
             /**
-             * DELETE was used, so the character at currentPosition should be deleted.
+             * DELETE was used, so the character at {@link Engine#cursorPosition} should be deleted.
              * cursorPosition doesn't change.
              */
             buffer.deleteAtPosition(cursorPosition);
@@ -134,15 +134,16 @@ public class Engine implements IEngine, Observable, MementoOriginator {
             notifyCursorChange();
         } else if (delDirection == DeleteCommand.DEL_BACKWARDS) {
             /**
-             * BACK_SPACE was used, so the previous character at currentPosition-1 should be deleted.
-             * cursorPosition is decremented.
+             * BACK_SPACE was used, so the previous character at
+             * {@link Engine#cursorPosition}-1 should be deleted.
+             * {@link Engine#cursorPosition} is decremented.
              */
             buffer.deleteAtPosition(cursorPosition - 1);
 
             /**
-             * Only move cursor and notify UI about it when cursorPosition is not 0.
-             * If it is 0, we are not allowed to move the cursor and therefor we also
-             * don't need to notify the UI.
+             * Only move cursor and notify UI about it when {@link Engine#cursorPosition}
+             * is not 0. If it is 0, we are not allowed to move the cursor and therefore
+             * we also don't need to notify the UI.
              */
             if(cursorPosition > 0) {
                 cursorPosition--;
@@ -181,10 +182,11 @@ public class Engine implements IEngine, Observable, MementoOriginator {
             isTextSelected = true;
 
             /**
-             * Since the user makes a selection by dragging the mouse or using the keyboard, every selection
-             * is started and ended at two given positions where both start<end and start>end can be true.
-             * However, @code{end} represents always to most recent position of interaction. Therefor we set
-             * the @code{cursorPosition} to this value.
+             * Since the user makes a selection by dragging the mouse or using the keyboard,
+             * every selection is started and ended at two given positions where both
+             * {@code start}<{@code end} and {@code start}>{@code end} can be true.
+             * However {@code end} represents always to most recent position of interaction.
+             * Therefore we set the {@link Engine#cursorPosition} to this value.
              */
             cursorPosition = end;
 
@@ -192,7 +194,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
         } else {
             /**
              * Need for selections created by SHIFT + ARROW_KEYS where selection is reduced to 0-length
-             * after having a selection of at least size==1. @see{expandSelection} method.
+             * after having a selection of at least size==1. Also see {@link Engine#expandSelection(int)}
+             * method.
              */
             updateCursor(base);
         }
@@ -205,7 +208,10 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * @param newEnd new end position of a given or new selection.
      */
     public void expandSelection(int newEnd) {
-        /** If there exists a selection, expand it. If not, create a new selection where {@code selectionStart} will be the current cursor position. */
+        /**
+         * If there exists a selection, expand it. If not, create a new selection
+         * where the selection base position will be {@link Engine#cursorPosition}.
+         */
         if(isTextSelected) {
             updateSelection(selection.getSelectionBase(), newEnd);
         } else {
@@ -214,8 +220,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     /**
-     * Gives a possible selection of a word or sequence of whitespace-characters when either one is
-     * double-clicked in the text editor.
+     * Gives a possible selection of a word or sequence of whitespace characters when
+     * either one is double-clicked in the text editor.
      *
      * @param cursorPosition at which user performed the double-click.
      */
@@ -235,7 +241,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     /**
-     * Copies selected text in the clipboard and removes selected text from {@code buffer}.
+     * Copies selected text in the clipboard and removes selected text from {@link Engine#buffer}.
      */
     public void cutSelection() {
         copySelection();
@@ -248,7 +254,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     /**
-     * Pastes content of the clipboard to {@code buffer} at the current cursorPosition.
+     * Pastes content of the clipboard to {@link Engine#buffer} at {@link Engine#cursorPosition}.
      */
     public void pasteClipboard() {
         if (clipboard != null && !clipboard.isEmpty()) {
@@ -285,9 +291,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
 
     /**
      * Rolls the most recent recovered state (Memento) back if applicable.
-     * Represents the inverse method of undoCommand() but works only if undoCommand()
-     * has been previously invoked without creating new state transformations on the
-     * Engine. See also implementation of {@code UndoModule}.
+     * Represents the inverse method of {@link Engine#undoCommand()} but works only if
+     * {@link Engine#undoCommand()} has been previously invoked without creating new
+     * state transformations on the Engine. See also {@link UndoModule}.
      */
     public void redoCommand() {
         Memento memento = undoModule.redo();
@@ -299,14 +305,14 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     /**
-     * Starts recording a macro by using a instance of RecordModule.
+     * Starts recording a macro by using a instance of {@link RecordModule}.
      */
     public void startRecording() {
         recordModule.clear().start();
     }
 
     /**
-     * Stops recording a macro by using a instance of RecordModule.
+     * Stops recording a macro by using a instance of {@link RecordModule}.
      */
     public void stopRecording() {
         recordModule.stop();
@@ -319,8 +325,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
         List<Command> commands = recordModule.getReplayList();
 
         /**
-         * A null-check for the list is not needed since we make sure in RecordModule that null
-         * is never returned for this method.
+         * A null-check for the list is not needed since we make sure in {@link RecordModule}
+         * that null is never returned for this method.
          */
         for(Command command : commands) {
             command.execute(this);
@@ -346,8 +352,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     public void spellCheck(){
         /**
-         * The spellCheckModules expects the current text as input and returns a map of
-         * misspelled words. Each entry of the map contains the position (start
+         * The {@link Engine#spellCheckModule} expects the current text as input and returns
+         * a map of misspelled words. Each entry of the map contains the position (start
          * and end position) and value of a misspelled word.
          */
         List<Selection> misspelledWordSelections = spellCheckModule.getMisspelledWords(buffer);
@@ -359,7 +365,9 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * Helper method that deletes the currently selected text in case there is a selection.
      *
      * @param selection object to be deleted.
-     * @return true if a selection has been deleted, or false if no selection is active. The return value can be used in the caller's code to have a feedback about the outcome of invoking this method.
+     * @return true if a selection has been deleted, or false if no selection is active.
+     * The return value can be used in the caller's code to have a feedback about the
+     * outcome of invoking this method.
      */
     private boolean deleteSelectionIfExists(Selection selection) {
         int base = selection.getSelectionBase();
@@ -388,7 +396,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     /**
-     * Creates a Memento object out of the current state of the Engine that can be stored for later use (e.g. recovery).
+     * Creates a Memento object out of the current state of the Engine that can be
+     * stored for later use (e.g. recovery).
      *
      * @return created Memento object.
      */

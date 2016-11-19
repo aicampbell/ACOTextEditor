@@ -54,9 +54,10 @@ public class KeyActionListener implements KeyListener {
 
     /**
      * Is invoked when a valid unicode character is associated with the KeyEvent.
-     * Also {@see https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html}
      *
-     * @param e key event that occured
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html">KeyEvent Documentation</a>
+     *
+     * @param e key event that occurred
      */
     public void keyTyped(KeyEvent e) {
         e.consume();
@@ -79,9 +80,10 @@ public class KeyActionListener implements KeyListener {
 
     /**
      * Is invoked when any key on the keyboard is pressed (pushing key down).
-     * Also {@see https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html}
      *
-     * @param e key event that occured
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html">KeyEvent Documentation</a>
+     *
+     * @param e key event that occurred
      */
     public void keyPressed(KeyEvent e) {
         e.consume();
@@ -178,9 +180,10 @@ public class KeyActionListener implements KeyListener {
 
     /**
      * Is invoked when any key on the keyboard is released after pressing it.
-     * Also {@see https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html}
      *
-     * @param e key event that occured
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html">KeyEvent Documentation</a>
+     *
+     * @param e key event that occurred
      */
     public void keyReleased(KeyEvent e) {
 

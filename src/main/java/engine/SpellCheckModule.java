@@ -111,8 +111,8 @@ public class SpellCheckModule implements ISpellCheckModule {
     }
 
     /**
-     * Loads the file at location {@code path} and adds each line in the text file as
-     * word in the dictionary.
+     * Loads the file at location {@link SpellCheckModule#PATH_TO_DICTIONARY} and adds each
+     * line in the text file as word in the dictionary.
      *
      * Assumes that the dictionary file contains one (normalized) word per line.
      *

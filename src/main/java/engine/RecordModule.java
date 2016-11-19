@@ -15,8 +15,8 @@ public class RecordModule implements IRecordModule {
     private List<Command> replayList;
 
     /**
-     * This boolean keeps track of the recording state. In case its
-     * value is true, incoming commands are stored in the {@see record}-method.
+     * This boolean keeps track of the recording state. In case its value is
+     * true, incoming commands are stored within {@link RecordModule#record(Command)}.
      */
     private boolean isRecording;
 
