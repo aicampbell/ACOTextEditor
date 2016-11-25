@@ -2,6 +2,7 @@ package engine;
 
 import commands.Command;
 import commands.DeleteCommand;
+import io.FileIO;
 import org.assertj.core.util.VisibleForTesting;
 
 
@@ -361,12 +362,10 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      * @param file object in which text state is written to
      */
     public void saveFile(File file) {
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(file)))) {
-            for (Character character : buffer.getContent()) {
-                writer.write(character);
-            }
+        try {
+            FileIO.saveContentToFile(file, buffer.getContent());
         } catch (IOException e) {
+            System.out.println("Error while saving buffer content to a file.");
             e.printStackTrace();
         }
     }

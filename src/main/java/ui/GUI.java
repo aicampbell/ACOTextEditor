@@ -4,6 +4,7 @@ import commands.*;
 import commands.Command;
 import engine.Engine;
 import engine.Selection;
+import io.FileIO;
 import listener.KeyActionListener;
 import listener.MouseActionListener;
 import engine.EngineObserver;
@@ -172,24 +173,12 @@ public class GUI implements EngineObserver {
                 if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
 
-                    try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))){
-                        StringBuilder stringBuilder = new StringBuilder();
-                        String line = br.readLine();
-                        while (line != null) {
-                            stringBuilder.append(line);
-                            line = br.readLine();
-                            stringBuilder.append(System.getProperty("line.separator"));
-                        }
-                        char[] charArray = stringBuilder.toString().toCharArray();
-
-                        List<Character> chars = new ArrayList<>();
-                        for(Character c : charArray) {
-                            chars.add(c);
-                        }
-
+                    try {
+                        List<Character> chars = FileIO.getContentsOfFile(selectedFile);
                         Command openCommand = new OpenCommand(chars);
                         openCommand.execute(engine);
-                    } catch (IOException e) {
+                    }  catch (IOException e) {
+                        System.out.println("Error while opening a file.");
                         e.printStackTrace();
                     }
                 }
