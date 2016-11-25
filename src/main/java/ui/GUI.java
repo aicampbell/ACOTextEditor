@@ -3,7 +3,6 @@ package ui;
 import commands.*;
 import commands.Command;
 import engine.Engine;
-import engine.IEngine;
 import engine.Selection;
 import listener.KeyActionListener;
 import listener.MouseActionListener;
@@ -30,7 +29,7 @@ public class GUI implements EngineObserver {
     private Engine engine;
 
     private JMenuBar jMenuBar;
-    private JPanel jPanel;
+    private JScrollPane jScrollpane;
     private JTextPane textPane;
 
     private Underliner redUnderliner;
@@ -138,8 +137,7 @@ public class GUI implements EngineObserver {
      * Set up panel which contains {@link GUI#textPane}.
      */
     private void setupPanel() {
-        jPanel = new JPanel();
-        jPanel.add(textPane);
+        jScrollpane = new JScrollPane(textPane);
     }
 
     /**
@@ -325,7 +323,7 @@ public class GUI implements EngineObserver {
         JFrame frame = new JFrame("Text Editor");
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setJMenuBar(jMenuBar);
-        frame.setContentPane(jPanel);
+        frame.setContentPane(jScrollpane);
         frame.pack();
         frame.setLocationRelativeTo(null); // centers window on screen
         frame.setVisible(true);
