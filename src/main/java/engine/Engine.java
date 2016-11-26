@@ -77,6 +77,8 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     private boolean isTextSelected = false;
 
+    List<Selection> misspelledWordSelections;
+
     /**
      * Constructor instantiates all instance objects.
      */
@@ -380,7 +382,7 @@ public class Engine implements IEngine, Observable, MementoOriginator {
          * a map of misspelled words. Each entry of the map contains the position (start
          * and end position) and value of a misspelled word.
          */
-        List<Selection> misspelledWordSelections = spellCheckModule.getMisspelledWords(buffer);
+        misspelledWordSelections = spellCheckModule.getMisspelledWords(buffer);
 
         notifyMisspelledWordsChange(misspelledWordSelections);
     }
@@ -523,5 +525,13 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     @VisibleForTesting
     public void setIsTextSelected(boolean newValue) {
         this.isTextSelected = newValue;
+    }
+
+    public List<Selection> getMisspelledWordSelections() {
+        return misspelledWordSelections;
+    }
+
+    public Buffer getClipboard() {
+        return clipboard;
     }
 }
