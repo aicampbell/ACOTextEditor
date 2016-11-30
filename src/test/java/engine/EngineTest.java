@@ -305,7 +305,7 @@ public class EngineTest {
         //Shows that the character was deleted backwards by putting the cursor at the last position, deleting a character,
         //then comparing the new content's last character with the second last character of the original array.
         assertEquals(engine.getBuffer().getContent().get(0), originalContent.get(1));
-g
+
     }
 
     @Test
