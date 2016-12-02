@@ -17,14 +17,18 @@ public class Memento implements IMemento {
     private Selection selection;
     private int cursorPosition;
 
-    public static Memento getInitialMomento() {
+    public static Memento getInitialMemento() {
         return new Memento();
     }
 
     /**
-     * Private empty default constructor to enable method {@link Memento#getInitialMomento()}.
+     * Private empty default constructor to enable method {@link Memento#getInitialMemento()}.
      */
     private Memento() {
+        this.buffer = new Buffer();
+        this.clipboard = new Buffer();
+        this.selection = new Selection();
+        this.cursorPosition = 0;
     }
 
     /**

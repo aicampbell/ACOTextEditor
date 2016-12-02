@@ -44,7 +44,7 @@ public class UndoModule implements MementoCaretaker {
                 return undoStack.peek();
             }
         }
-        return Memento.getInitialMomento();
+        return Memento.getInitialMemento();
     }
 
     /**
@@ -71,6 +71,6 @@ public class UndoModule implements MementoCaretaker {
             return undoStack.peek();
         }
 
-        return Memento.getInitialMomento();
+        return Memento.getInitialMemento();
     }
 }
