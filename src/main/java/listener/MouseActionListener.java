@@ -20,7 +20,6 @@ public class MouseActionListener extends MouseAdapter {
 
     private Command command;
 
-    //private int selectionBase;
     private int selectionEnd;
 
     public MouseActionListener(JTextPane textPane, Engine engine) {

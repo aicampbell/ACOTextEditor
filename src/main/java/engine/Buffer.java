@@ -146,6 +146,10 @@ public class Buffer {
      * @return the computed selection start.
      */
     public int getWordStart(int position) {
+        /** There is no character at the last position, so we pretend the (n-1)th position is clicked. */
+        if(isLastPosition(position)) {
+            position--;
+        }
         char c = content.get(position);
         int nextCheck = position - 1;
 
@@ -167,6 +171,10 @@ public class Buffer {
      * @return the computed selection end.
      */
     public int getWordEnd(int position) {
+        /** There is no character at the last position, so we pretend the (n-1)th position is clicked. */
+        if(isLastPosition(position)) {
+            position--;
+        }
         char c = content.get(position);
         int nextCheck = position + 1;
 
