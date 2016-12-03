@@ -1,11 +1,8 @@
 package engine;
 
-import org.assertj.core.util.VisibleForTesting;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a state of the text input area or a part of it.

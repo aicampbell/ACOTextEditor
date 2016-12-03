@@ -3,10 +3,6 @@ package engine;
 import commands.DeleteCommand;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +17,6 @@ public class EngineTest {
     Engine engine;
     Buffer randomBuffer;
     Selection randomSelection;
-
     SpellCheckModule spellCheckModule;
 
     @Before
@@ -85,20 +80,7 @@ public class EngineTest {
         assertThat(engine.getBuffer().getContent()).containsExactly('r', 'm', '\t', 'd', '.', ' ', '0', 'm');
     }
 
-    private List<Character> getRandomText() {
-        // Builds "r4n   d. 0m" string
-        List<Character> list = new ArrayList<>();
-        list.add('r');
-        list.add('4');
-        list.add('n');
-        list.add('\t');
-        list.add('d');
-        list.add('.');
-        list.add(' ');
-        list.add('0');
-        list.add('m');
-        return list;
-    }
+
 
     @Test
     public void checkUpdateCursor() {
@@ -125,21 +107,7 @@ public class EngineTest {
 
     @Test
     public void checkSelectCurrentWord() {
-        List<Character> list = new ArrayList<>();
-        list.add('r');
-        list.add('a');
-        list.add('n');
-        list.add('d');
-        list.add('o');
-        list.add('m');
-        list.add(' ');
-        list.add('w');
-        list.add('o');
-        list.add('r');
-        list.add('d');
-        list.add(' ');
-        list.add('i');
-        list.add('s');
+        List<Character> list = getRandomTxtWithMultipleWords();
 
         Buffer buffer = new Buffer(list);
         engine.setBuffer(buffer);
@@ -153,21 +121,7 @@ public class EngineTest {
 
     @Test
     public void checkSelectCurrentWord_when_space() {
-        List<Character> list = new ArrayList<>();
-        list.add('r');
-        list.add('a');
-        list.add('n');
-        list.add('d');
-        list.add('o');
-        list.add('m');
-        list.add(' ');
-        list.add('w');
-        list.add('o');
-        list.add('r');
-        list.add('d');
-        list.add(' ');
-        list.add('i');
-        list.add('s');
+        List<Character> list = getRandomTxtWithMultipleWords();
 
         Buffer buffer = new Buffer(list);
         engine.setBuffer(buffer);
@@ -181,21 +135,7 @@ public class EngineTest {
     @Test
     public void getCopy() {
 
-        List<Character> list = new ArrayList<>();
-        list.add('r');
-        list.add('a');
-        list.add('n');
-        list.add('d');
-        list.add('o');
-        list.add('m');
-        list.add(' ');
-        list.add('w');
-        list.add('o');
-        list.add('r');
-        list.add('d');
-        list.add(' ');
-        list.add('i');
-        list.add('s');
+        List<Character> list = getRandomTxtWithMultipleWords();
 
         engine.setBuffer(new Buffer(list));
         engine.setSelection(new Selection(1, 5));
@@ -211,23 +151,7 @@ public class EngineTest {
 
     @Test
     public void checkCutSelection() {
-        List<Character> originalList = new ArrayList<>();
-        originalList.add('r');
-        originalList.add('a');
-        originalList.add('n');
-        originalList.add('d');
-        originalList.add('o');
-        originalList.add('m');
-        originalList.add(' ');
-        originalList.add('w');
-        originalList.add('o');
-        originalList.add('r');
-        originalList.add('d');
-        originalList.add(' ');
-        originalList.add('i');
-        originalList.add('s');
-
-
+        List<Character> originalList = getRandomTxtWithMultipleWords();
         Buffer buffer = new Buffer(originalList);
         engine.setBuffer(buffer);
         assertEquals(engine.getBuffer().getContent(), originalList);
@@ -244,23 +168,8 @@ public class EngineTest {
 
     @Test
     public void checkPasteClipboard() {
-        List<Character> originalList = new ArrayList<>();
-        originalList.add('r');
-        originalList.add('a');
-        originalList.add('n');
-        originalList.add('d');
-        originalList.add('o');
-        originalList.add('m');
-        originalList.add(' ');
-        originalList.add('w');
-        originalList.add('o');
-        originalList.add('r');
-        originalList.add('d');
-        originalList.add(' ');
-        originalList.add('i');
-        originalList.add('s');
 
-
+        List<Character> originalList = getRandomTxtWithMultipleWords();
         Buffer buffer = new Buffer(originalList);
         engine.setBuffer(buffer);
 
@@ -268,7 +177,6 @@ public class EngineTest {
         engine.setIsTextSelected(true);
         engine.copySelection();
 
-        assertNotEquals(engine.getBuffer().getContent(), originalList);
         for (int i = engine.getSelection().getSelectionBase(); i < engine.getSelection().getSelectionEnd() - 1; i++) {
             assertEquals(engine.getClipboard().getContent().get(i), originalList.get(i));
         }
@@ -332,13 +240,7 @@ public class EngineTest {
     @Test
     public void givenTxtInBufferIsNotMisspelled_whenBufferHasContents_spellCheck() {
 
-        List<Character> list = new ArrayList<>();
-        list.add('r');
-        list.add('a');
-        list.add('n');
-        list.add('d');
-        list.add('o');
-        list.add('m');
+        List<Character> list = getRandomTxtWithMultipleWords();
 
         Buffer buffer = new Buffer(list);
         engine.setBuffer(buffer);
@@ -348,21 +250,38 @@ public class EngineTest {
         assertEquals(misspelledWordSelections.size(), 0);
     }
 
-    //Cant get location of file to work
-    @Test
-    public void givenTxtFile_whenTxtFileOpened_bufferIsOverwritten() {
-        FileReader file = null;
-        try {
-            file = new FileReader(String.valueOf(getClass().getResource("Test.txt")));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println(file.read());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public List<Character> getRandomTxtWithMultipleWords(){
+        List<Character>list = new ArrayList<>();
+        list.add('r');
+        list.add('a');
+        list.add('n');
+        list.add('d');
+        list.add('o');
+        list.add('m');
+        list.add(' ');
+        list.add('w');
+        list.add('o');
+        list.add('r');
+        list.add('d');
+        list.add(' ');
+        list.add('i');
+        list.add('s');
 
-//        engine.openFile();
+        return list;
+    }
+
+    private List<Character> getRandomText() {
+        // Builds "r4n   d. 0m" string
+        List<Character> list = new ArrayList<>();
+        list.add('r');
+        list.add('4');
+        list.add('n');
+        list.add('\t');
+        list.add('d');
+        list.add('.');
+        list.add(' ');
+        list.add('0');
+        list.add('m');
+        return list;
     }
 }
