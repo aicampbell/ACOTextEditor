@@ -1,8 +1,12 @@
 package engine;
 
 import commands.DeleteCommand;
+import commands.InsertCommand;
+import engine.interfaces.EngineObserver;
 import org.junit.Before;
 import org.junit.Test;
+import ui.GUI;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +20,7 @@ import static org.junit.Assert.assertNotEquals;
 public class EngineTest {
     Engine engine;
     Buffer randomBuffer;
+    Buffer randomClipboard;
     Selection randomSelection;
     SpellCheckModule spellCheckModule;
 
@@ -23,6 +28,7 @@ public class EngineTest {
     public void setUp() throws Exception {
         engine = new Engine();
         randomBuffer = new Buffer(getRandomText());
+        randomClipboard = new Buffer(getRandomText());
         randomSelection = new Selection(1, 3);
         spellCheckModule = new SpellCheckModule();
     }
@@ -168,25 +174,21 @@ public class EngineTest {
 
     @Test
     public void checkPasteClipboard() {
+        engine.setBuffer(randomBuffer);
+        engine.setClipboard(randomClipboard);
+        engine.setCursorPosition(randomBuffer.getSize());
 
-        List<Character> originalList = getRandomTxtWithMultipleWords();
-        Buffer buffer = new Buffer(originalList);
-        engine.setBuffer(buffer);
+        engine.pasteClipboard();
 
-        engine.setSelection(new Selection(0, 5));
-        engine.setIsTextSelected(true);
-        engine.copySelection();
-
-        for (int i = engine.getSelection().getSelectionBase(); i < engine.getSelection().getSelectionEnd() - 1; i++) {
-            assertEquals(engine.getClipboard().getContent().get(i), originalList.get(i));
-        }
+        randomBuffer.getContent().addAll(randomBuffer.getContent());
+        assertThat(engine.getBuffer().getContent()).containsAll(randomBuffer.getContent());
     }
 
     @Test
     public void givenTxtInBuffer_whenBufferHasContents_DeleteInBackWardsDirection() {
-
         engine.setCursorPosition(getRandomText().size());
         engine.setBuffer(randomBuffer);
+
         engine.deleteInDirection(DeleteCommand.DEL_BACKWARDS);
         List<Character> originalContent = getRandomText();
 
@@ -201,7 +203,6 @@ public class EngineTest {
 
     @Test
     public void givenTxtInBuffer_whenBufferHasContents_DeleteInForwardsDirection() {
-
         engine.setCursorPosition(0);
         engine.setBuffer(randomBuffer);
         engine.deleteInDirection(DeleteCommand.DEL_FORWARDS);
@@ -213,7 +214,29 @@ public class EngineTest {
         //Shows that the character was deleted backwards by putting the cursor at the last position, deleting a character,
         //then comparing the new content's last character with the second last character of the original array.
         assertEquals(engine.getBuffer().getContent().get(0), originalContent.get(1));
+    }
 
+    @Test
+    public void givenTxtInBufferAndSelection_whenBufferHasContents_thenDeleteSelection() {
+        engine.setBuffer(randomBuffer);
+        engine.setCursorPosition(3);
+        engine.setSelection(randomSelection);
+        engine.setIsTextSelected(true);
+        engine.deleteInDirection(DeleteCommand.DEL_FORWARDS);
+
+        List<Character> expectedResult = new ArrayList<>();
+        expectedResult.add('r');
+        expectedResult.add('\t');
+        expectedResult.add('d');
+        expectedResult.add('.');
+        expectedResult.add(' ');
+        expectedResult.add('0');
+        expectedResult.add('m');
+
+
+        //Shows that selection was deleted by checking new buffer size.
+        assertEquals(engine.getBuffer().getContent().size(), expectedResult.size());
+        assertThat(engine.getBuffer().getContent()).isEqualTo(expectedResult);
     }
 
     @Test
@@ -239,7 +262,6 @@ public class EngineTest {
 
     @Test
     public void givenTxtInBufferIsNotMisspelled_whenBufferHasContents_spellCheck() {
-
         List<Character> list = getRandomTxtWithMultipleWords();
 
         Buffer buffer = new Buffer(list);
@@ -268,6 +290,91 @@ public class EngineTest {
         list.add('s');
 
         return list;
+    }
+
+    @Test
+    public void checkUndoCommand() {
+        engine.setBuffer(randomBuffer);
+        engine.setCursorPosition(randomBuffer.getSize());
+        List<Character> expectedResult = getRandomText();
+        expectedResult.add('n');
+
+        engine.insertChar('n');
+        engine.insertChar('m');
+        engine.undoCommand();
+
+        assertThat(engine.getBuffer().getContent()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    public void checkRedoCommand() {
+        engine.setBuffer(randomBuffer);
+        engine.setCursorPosition(randomBuffer.getSize());
+        List<Character> expectedResult = getRandomText();
+        expectedResult.add('n');
+        expectedResult.add('m');
+
+        engine.insertChar('n');
+        engine.insertChar('m');
+        engine.undoCommand();
+        engine.redoCommand();
+
+        assertThat(engine.getBuffer().getContent()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    public void checkRecordReplayFeature() {
+        engine.setBuffer(randomBuffer);
+        engine.setCursorPosition(randomBuffer.getSize());
+        List<Character> expectedResult = getRandomText();
+        InsertCommand insertCommand1 = new InsertCommand('n');
+        InsertCommand insertCommand2 = new InsertCommand('1');
+        expectedResult.add('n');
+        expectedResult.add('1');
+        expectedResult.add('n');
+        expectedResult.add('1');
+        expectedResult.add('n');
+        expectedResult.add('1');
+
+        engine.startRecording();
+        insertCommand1.execute(engine);
+        insertCommand2.execute(engine);
+        engine.stopRecording();
+        // replay the commands twice to also proof that multiple replays are running fine
+        engine.replayRecording();
+        engine.replayRecording();
+
+        assertThat(engine.getBuffer().getContent()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    public void checkOpenFile() {
+        // Assumes that File-IO was successful and List<Character> was successfully extracted from file.
+        // File-IO could be mocked but in this case, the mocking doesn't add any additional test value.
+        engine.openFile(getRandomText());
+
+        assertThat(engine.getBuffer().getContent()).isEqualTo(getRandomText());
+    }
+
+    @Test
+    public void checkRegisteringObserver() {
+        EngineObserver engineObserver = new GUI();
+
+        engine.registerObserver(engineObserver);
+
+        assertThat(engine.getObservers()).hasSize(1);
+        assertThat(engine.getObservers().get(0)).isInstanceOf(EngineObserver.class);
+        assertThat(engine.getObservers().get(0)).isEqualTo(engineObserver);
+    }
+
+    @Test
+    public void checkUnregisteringObserver() {
+        EngineObserver engineObserver = new GUI();
+
+        engine.registerObserver(engineObserver);
+        engine.unregisterObserver(engineObserver);
+
+        assertThat(engine.getObservers()).hasSize(0);
     }
 
     private List<Character> getRandomText() {

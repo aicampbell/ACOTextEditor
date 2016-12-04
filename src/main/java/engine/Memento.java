@@ -1,5 +1,7 @@
 package engine;
 
+import engine.interfaces.IMemento;
+
 /**
  * Memento object that can store complete Engine states.
  *

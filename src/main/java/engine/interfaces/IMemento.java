@@ -1,4 +1,4 @@
-package engine;
+package engine.interfaces;
 
 /**
  * This interface specifies the role of a Memento for an implementing class.

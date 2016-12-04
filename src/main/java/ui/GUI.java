@@ -7,7 +7,7 @@ import engine.Selection;
 import io.FileIO;
 import listener.KeyActionListener;
 import listener.MouseActionListener;
-import engine.EngineObserver;
+import engine.interfaces.EngineObserver;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -17,7 +17,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.util.*;
 import java.util.List;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;

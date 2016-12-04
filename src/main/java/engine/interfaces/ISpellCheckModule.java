@@ -1,4 +1,7 @@
-package engine;
+package engine.interfaces;
+
+import engine.Buffer;
+import engine.Selection;
 
 import java.util.List;
 

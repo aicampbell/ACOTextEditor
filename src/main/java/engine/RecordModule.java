@@ -1,6 +1,7 @@
 package engine;
 
 import commands.Command;
+import engine.interfaces.IRecordModule;
 
 import java.util.ArrayList;
 import java.util.List;

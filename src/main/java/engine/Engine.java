@@ -2,6 +2,10 @@ package engine;
 
 import commands.Command;
 import commands.DeleteCommand;
+import engine.interfaces.EngineObserver;
+import engine.interfaces.IEngine;
+import engine.interfaces.MementoOriginator;
+import engine.interfaces.Observable;
 import io.FileIO;
 import org.assertj.core.util.VisibleForTesting;
 
@@ -9,7 +13,6 @@ import org.assertj.core.util.VisibleForTesting;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class represents the backend (engine) of the text editor. It's main
@@ -512,6 +515,11 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     }
 
     @VisibleForTesting
+    public void setClipboard(Buffer clipboard) {
+        this.clipboard = clipboard;
+    }
+
+    @VisibleForTesting
     public Selection getSelection() {
         return selection;
     }
@@ -524,6 +532,11 @@ public class Engine implements IEngine, Observable, MementoOriginator {
     @VisibleForTesting
     public void setIsTextSelected(boolean newValue) {
         this.isTextSelected = newValue;
+    }
+
+    @VisibleForTesting
+    public List<EngineObserver> getObservers() {
+        return observers;
     }
 
     public List<Selection> getMisspelledWordSelections() {

@@ -1,4 +1,6 @@
-package engine;
+package engine.interfaces;
+
+import engine.Memento;
 
 /**
  * This interface specifies the Caretaker component of the Memento design pattern.
