@@ -34,6 +34,19 @@ public class EngineTest {
     }
 
     @Test
+    public void checkInitialEngineState() {
+        Memento initialMemento = Memento.getInitialMemento();
+
+        // Check that initial Memento state is correctly reflected in Engine state
+        assertThat(engine.getBuffer().getContent()).isEqualTo(initialMemento.getBuffer().getContent());
+        assertThat(engine.getClipboard().getContent()).isEqualTo(initialMemento.getClipboard().getContent());
+        assertThat(engine.getSelection().getSelectionBase()).isEqualTo(initialMemento.getSelection().getSelectionBase());
+        assertThat(engine.getSelection().getSelectionEnd()).isEqualTo(initialMemento.getSelection().getSelectionEnd());
+        assertThat(engine.getCursorPosition()).isEqualTo(initialMemento.getCursorPosition());
+    }
+
+
+    @Test
     public void givenCharAndInitialEngineState_whenCharInserted_thenEngineCorrectlyUpdatesTextAndCursor() throws Exception {
         // given
         char c = 'm';
@@ -307,7 +320,7 @@ public class EngineTest {
     }
 
     @Test
-    public void checkRedoCommand() {
+    public void checkRedoCommand_withRedoableCommands() {
         engine.setBuffer(randomBuffer);
         engine.setCursorPosition(randomBuffer.getSize());
         List<Character> expectedResult = getRandomText();
@@ -317,6 +330,22 @@ public class EngineTest {
         engine.insertChar('n');
         engine.insertChar('m');
         engine.undoCommand();
+        engine.redoCommand();
+
+        assertThat(engine.getBuffer().getContent()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    public void checkRedoCommand_withoutRedoableCommands() {
+        engine.setBuffer(randomBuffer);
+        engine.setCursorPosition(randomBuffer.getSize());
+        List<Character> expectedResult = getRandomText();
+        expectedResult.add('n');
+        expectedResult.add('m');
+
+        engine.insertChar('n');
+        engine.insertChar('m');
+        // Buffer shouldn't change
         engine.redoCommand();
 
         assertThat(engine.getBuffer().getContent()).isEqualTo(expectedResult);
@@ -375,6 +404,15 @@ public class EngineTest {
         engine.unregisterObserver(engineObserver);
 
         assertThat(engine.getObservers()).hasSize(0);
+    }
+
+    @Test
+    public void checkBufferToString() {
+        String bufferAsString = randomBuffer.toString();
+        StringBuilder expectedResultBuilder = new StringBuilder();
+        randomBuffer.getContent().forEach(c -> expectedResultBuilder.append(c));
+
+        assertThat(bufferAsString).isEqualTo(expectedResultBuilder.toString());
     }
 
     private List<Character> getRandomText() {

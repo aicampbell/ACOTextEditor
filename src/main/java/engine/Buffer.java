@@ -197,9 +197,8 @@ public class Buffer {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(Character c : content) {
-            stringBuilder.append(c);
-        }
+        content.forEach(c -> stringBuilder.append(c));
+
         return stringBuilder.toString();
     }
 
