@@ -81,7 +81,10 @@ public class Engine implements IEngine, Observable, MementoOriginator {
      */
     private boolean isTextSelected = false;
 
-    List<Selection> misspelledWordSelections;
+    /**
+     * Contains results of a spell check.
+     */
+    private List<Selection> misspelledWordSelections;
 
     /**
      * Constructor instantiates all instance objects.
